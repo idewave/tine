@@ -1,0 +1,1 @@
+pub use tentacli::traits::BinaryConverter;
