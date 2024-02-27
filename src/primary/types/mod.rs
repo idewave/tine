@@ -1,3 +1,5 @@
+pub mod fields;
+
 use std::sync::{Arc, Mutex as SyncMutex};
 use anyhow::{Result as AnyResult};
 use crate::primary::crypto::srp::Srp;
