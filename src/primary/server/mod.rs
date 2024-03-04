@@ -1,147 +1,91 @@
 use std::collections::BTreeMap;
-use std::sync::{Arc, Mutex as SyncMutex};
-use tokio::io::{AsyncReadExt, AsyncWriteExt};
-use tokio::net::TcpListener;
-use tokio::sync::Mutex;
-use colored::*;
-use crate::primary::crypto::srp::Srp;
+use std::sync::{Arc};
+use async_trait::async_trait;
+use tokio::io::{AsyncWriteExt};
+use tokio::net::TcpStream;
 
 mod opcodes;
 mod auth;
 
-use crate::primary::server::auth::AuthProcessor;
-use crate::primary::shared::session::Session;
+use crate::primary::server::auth::{auth_challenge, AuthProcessor};
 use crate::primary::traits::processor::Processor;
-use crate::primary::types::{HandlerInput, HandlerOutput, ProcessorFunction, ProcessorResult};
+use crate::primary::traits::server::{RunOptions, Server};
+use crate::primary::types::{HandlerInput, ProcessorFunction};
 
 const HOST: &str = "127.0.0.1";
-const PORT: u16 = 3724;
+const LOGIN_PORT: u16 = 3724;
+pub const WORLD_PORT: u16 = 8999;
 
 type SessionKey = Vec<u8>;
 type Sessions = BTreeMap<String, Option<SessionKey>>;
 
-pub struct LoginServer {
-    _sessions: Arc<Mutex<Sessions>>,
-}
+pub struct LoginServer {}
 
-impl LoginServer {
-    pub fn new() -> Self {
-        Self {
-            _sessions: Arc::new(Mutex::new(BTreeMap::new())),
+#[async_trait]
+impl Server for LoginServer {
+    fn new() -> Self {
+        Self {}
+    }
+
+    fn generate_input(packet: &[u8], options: &RunOptions) -> HandlerInput {
+        HandlerInput {
+            data: packet[1..].to_vec(),
+            opcode: packet[0] as u16,
+            srp: Arc::clone(&options.srp),
         }
     }
 
-    pub async fn run(&mut self) {
-        let listener = TcpListener::bind(format!("{}:{}", HOST, PORT)).await.unwrap();
-        println!("LoginServer is started on port {}", PORT);
-
-        loop {
-            let (mut socket, _) = listener.accept().await.unwrap();
-            let sessions = Arc::clone(&self._sessions);
-
-            tokio::spawn(async move {
-                let peer_addr = socket.peer_addr().unwrap();
-                println!("Client connected: {:?}", peer_addr);
-
-                let cloned_sessions = sessions.clone();
-                cloned_sessions.lock().await.entry(peer_addr.to_string()).or_insert(None);
-                let srp = Arc::new(SyncMutex::new(Srp::new()));
-
-                loop {
-                    let mut buf = [0; 65536];
-                    match socket.read(&mut buf).await {
-                        Ok(0) => {
-                            println!("Client disconnected");
-                            break;
-                        }
-                        Ok(n) => {
-                            println!("Received {} bytes: {:?}", n, &buf[..n]);
-                            let packet = &buf[..n];
-
-                            let mut input = HandlerInput {
-                                data: packet[1..].to_vec(),
-                                opcode: packet[0] as u16,
-                                srp: Arc::clone(&srp),
-                            };
-
-                            let processors = Self::get_login_processors();
-                            let handler_list = processors
-                                .iter()
-                                .flat_map(|processor| processor(&mut input))
-                                .collect::<ProcessorResult>();
-
-                            for mut handler in handler_list {
-                                let response = handler.handle(&mut input).await;
-                                match response {
-                                    Ok(outputs) => {
-                                        for output in outputs {
-                                            match output {
-                                                HandlerOutput::Data(packet) => {
-                                                    socket.write_all(&packet).await.unwrap();
-                                                },
-                                                HandlerOutput::SessionKey(key) => {},
-                                            }
-                                        }
-                                    },
-                                    Err(err) => {
-                                        println!("[ERROR]: {}", err.to_string().red())
-                                    },
-                                };
-                            }
-                        }
-                        Err(e) => {
-                            eprintln!("Error reading from socket: {}", e);
-                            break;
-                        }
-                    }
-                }
-            });
-        }
+    fn get_processors() -> Vec<ProcessorFunction> {
+        vec![Box::new(AuthProcessor::get_handlers)]
     }
 
-    fn get_login_processors() -> Vec<ProcessorFunction> {
-        vec![
-            Box::new(AuthProcessor::get_handlers),
-        ]
+    fn host<'a>() -> &'a str {
+        HOST
+    }
+
+    fn port() -> u16 {
+        LOGIN_PORT
+    }
+
+    fn server_name<'a>() -> &'a str {
+        "Login Server"
     }
 }
 
 pub struct WorldServer {}
-impl WorldServer {
-    pub async fn run() {
-        let listener = TcpListener::bind(format!("{}:{}", HOST, PORT)).await.unwrap();
-        println!("LoginServer is started on port {}", PORT);
 
-        loop {
-            let (mut socket, _) = listener.accept().await.unwrap();
+#[async_trait]
+impl Server for WorldServer {
+    fn new() -> Self {
+        Self {}
+    }
 
-            tokio::spawn(async move {
-                println!("Client connected: {:?}", socket.peer_addr().unwrap());
+    async fn init(socket: &mut TcpStream) {
+        let packet = auth_challenge().await.unwrap();
+        socket.write_all(&packet).await.unwrap();
+    }
 
-                loop {
-                    let mut buf = [0; 1024];
-                    match socket.read(&mut buf).await {
-                        Ok(0) => {
-                            println!("Client disconnected");
-                            break;
-                        }
-                        Ok(n) => {
-                            println!("Received {} bytes: {:?}", n, &buf[..n]);
-                            let mut packet = vec![n as u8];
-                            packet.extend_from_slice(&buf[..n]);
-
-                            if let Err(e) = socket.write_all(&packet).await {
-                                eprintln!("Error writing to socket: {}", e);
-                                break;
-                            }
-                        }
-                        Err(e) => {
-                            eprintln!("Error reading from socket: {}", e);
-                            break;
-                        }
-                    }
-                }
-            });
+    fn generate_input(_packet: &[u8], options: &RunOptions) -> HandlerInput {
+        HandlerInput {
+            data: vec![],
+            opcode: 0,
+            srp: Arc::clone(&options.srp),
         }
+    }
+
+    fn get_processors() -> Vec<ProcessorFunction> {
+        vec![]
+    }
+
+    fn host<'a>() -> &'a str {
+        HOST
+    }
+
+    fn port() -> u16 {
+        WORLD_PORT
+    }
+
+    fn server_name<'a>() -> &'a str {
+        "World Server"
     }
 }

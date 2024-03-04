@@ -1,9 +1,8 @@
 use async_trait::async_trait;
-use idewave_packet::LoginPacket;
-use num_bigint::BigInt;
-use num_traits::FromBytes;
 use serde::{Deserialize, Serialize};
-use sha1::Sha1;
+use sha1::{Digest, Sha1};
+use tentacli::packet::idewave::LoginPacket;
+
 use crate::primary::server::auth::types::AccountFlags;
 use crate::primary::server::opcodes::Opcode;
 
@@ -28,7 +27,7 @@ with_opcode! {
     #[derive(LoginPacket, Serialize, Deserialize, Debug)]
     struct Outcome {
         error: u8,
-        server_proof: Vec<u8>,
+        server_proof: [u8; 20],
         account_flags: u32,
         survey_id: u32,
         unknown_flags: u16,
@@ -49,6 +48,20 @@ impl PacketHandler for Handler {
 
         if server_proof == client_proof {
             let session_key = srp.session_key.as_ref().unwrap().to_vec();
+
+            let server_proof = {
+                let hasher = Sha1::new();
+
+                let result = hasher
+                    .chain(client_ephemeral)
+                    .chain(server_proof)
+                    .chain(session_key.to_vec())
+                    .finalize();
+
+                let mut hashed_proof = [0u8; 20];
+                hashed_proof.copy_from_slice(&result);
+                hashed_proof
+            };
 
             response.push(HandlerOutput::SessionKey(session_key));
             response.push(HandlerOutput::Data(Outcome {

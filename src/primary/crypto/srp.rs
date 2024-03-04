@@ -11,7 +11,7 @@ pub struct Srp {
     pub salt: [u8; 32],
     pub server_ephemeral: Option<BigInt>,
     pub session_key: Option<Vec<u8>>,
-    multiplier: BigInt,
+    pub multiplier: BigInt,
     private_ephemeral: BigInt,
     account: Option<String>,
     verifier: Option<BigInt>

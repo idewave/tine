@@ -1,9 +1,9 @@
 use std::io::BufRead;
 use async_trait::async_trait;
-use idewave_packet::LoginPacket;
 use tentacli::packet::custom_fields::TerminatedString;
 use serde::{Deserialize, Serialize};
 use sha1::Sha1;
+use tentacli::packet::idewave::LoginPacket;
 
 use crate::with_opcode;
 use crate::primary::server::opcodes::Opcode;

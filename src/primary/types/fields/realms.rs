@@ -1,18 +1,19 @@
 use std::io::BufRead;
 use serde::{Deserialize, Deserializer, Serialize, Serializer};
 use tentacli::errors::FieldError;
-use tentacli::realm::Realm;
 use tentacli::traits::BinaryConverter;
+
+use std::fmt::{Debug};
+use tentacli::realm::Realm;
 
 #[derive(Clone, Default, Debug)]
 pub struct Realms(pub Vec<Realm>);
 
 impl BinaryConverter for Realms {
     fn write_into(&mut self, buffer: &mut Vec<u8>) -> Result<(), FieldError> {
-        buffer.extend(&(self.0.len() as i16).to_le_bytes());
-
         for realm in self.0.iter_mut() {
-            buffer.extend(&realm.icon.to_le_bytes());
+            buffer.push(realm.icon);
+            buffer.push(realm.lock);
             buffer.push(realm.flags);
             buffer.extend(realm.name.as_bytes());
             buffer.push(0);

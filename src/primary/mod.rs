@@ -3,5 +3,4 @@ pub mod macros;
 pub mod traits;
 pub mod types;
 pub mod serializers;
-pub mod shared;
-mod crypto;
+pub mod crypto;

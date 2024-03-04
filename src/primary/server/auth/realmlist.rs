@@ -1,17 +1,15 @@
 use async_trait::async_trait;
-use idewave_packet::LoginPacket;
 use rand::Rng;
-use serde::{Deserialize, Deserializer, Serialize, Serializer};
+use serde::{Deserialize, Serialize};
+use tentacli::packet::idewave::{FieldsSerializer, LoginPacket};
 use tentacli::realm::Realm;
-use tentacli::traits::BinaryConverter;
 
 use crate::primary::server::opcodes::Opcode;
+use crate::primary::server::WORLD_PORT;
 use crate::primary::traits::packet_handler::PacketHandler;
 use crate::primary::types::{HandlerInput, HandlerOutput, HandlerResult};
 use crate::primary::types::fields::realms::Realms;
 use crate::with_opcode;
-
-const REALM_SIZE: u16 = 64;
 
 with_opcode! {
     @login_opcode(Opcode::REALM_LIST)
@@ -20,7 +18,8 @@ with_opcode! {
         size: u16,
         unknown: u32,
         realms_count: u16,
-        realms: Realms,
+        realms: Vec<u8>,
+        unknown2: u16,
     }
 }
 
@@ -32,11 +31,21 @@ impl PacketHandler for Handler {
         let realms = Self::generate_unique_realms();
         let realms_count = realms.len() as u16;
 
+        let realms_bytes = {
+            #[derive(FieldsSerializer, Serialize, Deserialize)]
+            struct RealmsSerializer {
+                realms: Realms,
+            }
+
+            RealmsSerializer { realms: Realms(realms.clone()) }.to_binary().unwrap()
+        };
+
         response.push(HandlerOutput::Data(Outcome {
-            size: REALM_SIZE * realms_count,
+            size: (realms_bytes.len() + 8) as u16,
             unknown: 0,
             realms_count,
-            realms: Realms(realms),
+            realms: realms_bytes,
+            unknown2: 0x0010,
         }.to_binary()?));
 
         Ok(response)
@@ -53,11 +62,12 @@ impl Handler {
             .map(char::from)
             .collect();
 
+        realm.icon = 1;
+        realm.lock = 0;
+        realm.flags = 1;
         realm.name = name;
-
-        let port = rand::thread_rng().gen_range(16000..=25000);
-        realm.address = format!("127.0.0.1:{}", port);
-
+        realm.address = format!("127.0.0.1:{}", WORLD_PORT);
+        realm.timezone = 1;
         realm.server_id = rand::thread_rng().gen_range(0..=100);
 
         realm
@@ -65,18 +75,15 @@ impl Handler {
 
     fn generate_unique_realms() -> Vec<Realm> {
         let mut rng = rand::thread_rng();
-        let random_count: usize = rng.gen_range(0..=10);
+        let random_count: usize = rng.gen_range(1..=10);
 
         let mut realms = Vec::new();
-        let mut generated_addresses = std::collections::HashSet::new();
         let mut generated_names = std::collections::HashSet::new();
 
         while realms.len() < random_count {
-            let mut realm = Self::generate_realm();
+            let realm = Self::generate_realm();
 
-            if generated_addresses.insert(realm.address.clone())
-                && generated_names.insert(realm.name.clone())
-            {
+            if generated_names.insert(realm.name.clone()) {
                 realms.push(realm);
             }
         }
