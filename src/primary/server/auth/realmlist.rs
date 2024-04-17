@@ -1,26 +1,28 @@
 use async_trait::async_trait;
 use rand::Rng;
 use serde::{Deserialize, Serialize};
-use tentacli::packet::idewave::{FieldsSerializer, LoginPacket};
-use tentacli::realm::Realm;
+use tentacli_packet::{FieldsSerializer, LoginPacket};
+use tentacli_traits::types::opcodes::Opcode;
+use tentacli_traits::types::realm::Realm;
 
-use crate::primary::server::opcodes::Opcode;
 use crate::primary::server::WORLD_PORT;
 use crate::primary::traits::packet_handler::PacketHandler;
 use crate::primary::types::{HandlerInput, HandlerOutput, HandlerResult};
 use crate::primary::types::fields::realms::Realms;
-use crate::with_opcode;
 
-with_opcode! {
-    @login_opcode(Opcode::REALM_LIST)
-    #[derive(LoginPacket, Serialize, Deserialize, Debug, Default)]
-    struct Outcome {
-        size: u16,
-        unknown: u32,
-        realms_count: u16,
-        realms: Vec<u8>,
-        unknown2: u16,
-    }
+#[derive(LoginPacket, Serialize, Deserialize, Debug)]
+#[options(with_async)]
+pub struct RealmlistIncome {
+    skip: u32
+}
+
+#[derive(LoginPacket, Serialize, Deserialize, Debug, Default)]
+struct Outcome {
+    size: u16,
+    unknown: u32,
+    realms_count: u16,
+    realms: Vec<u8>,
+    unknown2: u16,
 }
 
 pub struct Handler;
@@ -46,7 +48,7 @@ impl PacketHandler for Handler {
             realms_count,
             realms: realms_bytes,
             unknown2: 0x0010,
-        }.to_binary()?));
+        }.to_binary_with_opcode(Opcode::REALM_LIST)?));
 
         Ok(response)
     }

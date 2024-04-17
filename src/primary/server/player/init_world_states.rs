@@ -1,0 +1,50 @@
+use async_trait::async_trait;
+use serde::{Deserialize, Serialize};
+use tentacli_packet::WorldPacket;
+use tentacli_traits::types::custom_fields::TerminatedString;
+use tentacli_traits::types::opcodes::Opcode;
+use tentacli_traits::types::player::{Class, Gender, Race};
+use tentacli_utils::generate_random_number;
+
+use crate::primary::traits::PacketHandler;
+use crate::primary::types::{HandlerInput, HandlerOutput, HandlerResult};
+
+#[derive(WorldPacket, Serialize, Deserialize, Debug)]
+struct Outcome {
+    map_id: u32,
+    zone_id: u32,
+    area_id: u32,
+    unknown: u16,
+    states: Vec<u8>
+}
+
+pub struct Handler;
+#[async_trait]
+impl PacketHandler for Handler {
+    async fn handle(&mut self, _: &mut HandlerInput) -> HandlerResult {
+        let mut response = Vec::new();
+        response.push(HandlerOutput::Data(
+            Outcome {
+                map_id: 530,
+                zone_id: 3430,
+                area_id: 3430,
+                unknown: 0,
+                states: vec![
+                    0x77, 0x0C, 0x00, 0x00, 0x01, 0x00, 0x00, 0x00, 0x3D, 0x0F, 0x00, 0x00, 0x00,
+                    0x00, 0x00, 0x00, 0xD9, 0x0E, 0x00, 0x00, 0x01, 0x00, 0x00, 0x00, 0x02, 0x11,
+                    0x00, 0x00, 0x90, 0xEF, 0x1C, 0x66, 0x95, 0x07,
+                    0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x96, 0x07,
+                    0x00, 0x00, 0x01, 0x00, 0x00, 0x00, 0x97, 0x07,
+                    0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x23, 0x0B,
+                    0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x6F, 0x0E,
+                    0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0xB1, 0x10,
+                    0x00, 0x00, 0x00, 0x00, 0x00, 0x00
+                ],
+            }.to_binary_with_server_opcode(Opcode::SMSG_INIT_WORLD_STATES)?
+        ));
+
+        println!("SEND Opcode::SMSG_INIT_WORLD_STATES");
+
+        Ok(response)
+    }
+}

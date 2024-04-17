@@ -1,16 +1,19 @@
 pub mod fields;
 
-use std::sync::{Arc, Mutex as SyncMutex};
+use std::sync::{Arc};
 use anyhow::{Result as AnyResult};
+use tokio::sync::Mutex;
 use crate::primary::crypto::srp::Srp;
 
 use crate::primary::traits::packet_handler::PacketHandler;
+use crate::primary::traits::server::Connection;
 
 #[derive(Debug)]
 pub struct HandlerInput {
     pub data: Vec<u8>,
-    pub opcode: u16,
-    pub srp: Arc<SyncMutex<Srp>>,
+    pub opcode: u32,
+    pub srp: Arc<Mutex<Srp>>,
+    pub connection: Arc<Mutex<Connection>>,
 }
 
 #[allow(dead_code)]

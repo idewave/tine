@@ -1,10 +1,9 @@
 use std::io::BufRead;
 use serde::{Deserialize, Deserializer, Serialize, Serializer};
-use tentacli::errors::FieldError;
-use tentacli::traits::BinaryConverter;
-
 use std::fmt::{Debug};
-use tentacli::realm::Realm;
+use tentacli_traits::{BinaryConverter, FieldError};
+use tentacli_traits::types::realm::Realm;
+
 
 #[derive(Clone, Default, Debug)]
 pub struct Realms(pub Vec<Realm>);

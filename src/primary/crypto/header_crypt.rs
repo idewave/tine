@@ -1,0 +1,53 @@
+use std::fmt::{Debug, Formatter};
+use hmacsha::HmacSha;
+use sha1::Sha1;
+
+use super::rc4::RC4;
+
+const ENCRYPTION_KEY: [u8; 16] = [
+    0xCC, 0x98, 0xAE, 0x04, 0xE8, 0x97, 0xEA, 0xCA, 0x12, 0xDD, 0xC0, 0x93, 0x42, 0x91, 0x53, 0x57
+];
+
+const DECRYPTION_KEY: [u8; 16] = [
+    0xC2, 0xB3, 0x72, 0x3C, 0xC6, 0xAE, 0xD9, 0xB5, 0x34, 0x3C, 0x53, 0xEE, 0x2F, 0x43, 0x67, 0xCE
+];
+
+pub struct HeaderCrypt {
+    encryptor: RC4,
+    decryptor: RC4,
+}
+
+impl HeaderCrypt {
+    pub fn new(secret: &[u8]) -> Self {
+        println!("SESS: {:?}", secret);
+        let mut encryptor = RC4::new(
+            HmacSha::new(&ENCRYPTION_KEY, secret, Sha1::default()).compute_digest().to_vec()
+        );
+
+        let mut decryptor = RC4::new(
+            HmacSha::new(&DECRYPTION_KEY, secret, Sha1::default()).compute_digest().to_vec()
+        );
+
+        let _ = &encryptor.encrypt(&vec![0; 1024]);
+        let _ = &decryptor.encrypt(&vec![0; 1024]);
+
+        Self {
+            encryptor,
+            decryptor,
+        }
+    }
+
+    pub fn encrypt(&mut self, data: &[u8]) -> Vec<u8> {
+        self.encryptor.encrypt(data)
+    }
+
+    pub fn decrypt(&mut self, data: &[u8]) -> Vec<u8> {
+        self.decryptor.encrypt(data)
+    }
+}
+
+impl Debug for HeaderCrypt {
+    fn fmt(&self, f: &mut Formatter<'_>) -> std::fmt::Result {
+        write!(f, "AuthCrypt")
+    }
+}

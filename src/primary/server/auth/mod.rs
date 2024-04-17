@@ -1,12 +1,17 @@
+use tentacli_traits::types::opcodes::Opcode;
+
 mod login_challenge;
 mod realmlist;
 mod login_proof;
 mod types;
 mod auth_challenge;
 
-use crate::primary::server::opcodes::Opcode;
 use crate::primary::traits::processor::Processor;
 use crate::primary::types::{HandlerInput, ProcessorResult};
+
+pub use login_challenge::LoginChallengeIncome;
+pub use login_proof::LoginProofIncome;
+pub use realmlist::RealmlistIncome;
 pub use auth_challenge::handle as auth_challenge;
 
 pub struct AuthProcessor;

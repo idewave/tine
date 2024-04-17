@@ -1,6 +1,8 @@
-use std::sync::{Arc, Mutex as SyncMutex};
+use std::sync::{Arc};
 use anyhow::{Result as AnyResult};
 use futures::future::join_all;
+use tokio::sync::Mutex;
+
 use crate::primary::crypto::srp::Srp;
 use crate::primary::server::{LoginServer, WorldServer};
 use crate::primary::traits::server::{RunOptions, Server};
@@ -9,19 +11,23 @@ mod primary;
 
 #[tokio::main]
 async fn main() -> AnyResult<()> {
-    let options = Arc::new(RunOptions { srp: Arc::new(SyncMutex::new(Srp::new())) });
+    let options = Arc::new(RunOptions { srp: Arc::new(Mutex::new(Srp::new())) });
 
     let run_login_server = || {
         let options = options.clone();
         tokio::spawn(async move {
-            LoginServer::new().run(options).await
+            if let Err(err) = LoginServer::new().run(options).await {
+                println!("Error running Login Server: {}", err);
+            }
         })
     };
 
     let run_world_server = || {
         let options = options.clone();
         tokio::spawn(async move {
-            WorldServer::new().run(options).await
+            if let Err(err) = WorldServer::new().run(options).await {
+                println!("Error running World Server: {}", err);
+            }
         })
     };
 
