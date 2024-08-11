@@ -6,6 +6,8 @@ mod login_server;
 mod world_server;
 pub mod types;
 mod player;
+mod mock_data;
+mod movement;
 
 use crate::primary::traits::processor::Processor;
 

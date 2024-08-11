@@ -1,7 +1,6 @@
 use async_trait::async_trait;
 use serde::{Deserialize, Serialize};
 use tentacli_packet::WorldPacket;
-use tentacli_traits::types::custom_fields::TerminatedString;
 use tentacli_traits::types::opcodes::Opcode;
 
 use crate::primary::crypto::header_crypt::HeaderCrypt;
@@ -13,7 +12,7 @@ use crate::primary::types::{HandlerInput, HandlerOutput, HandlerResult};
 struct Income {
     build: u32,
     unknown: u32,
-    account : TerminatedString,
+    account : String,
     unknown2: u32,
     client_seed: [u8; 4],
     unknown3: u64,

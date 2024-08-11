@@ -1,7 +1,7 @@
 use async_trait::async_trait;
 use rand::Rng;
 use serde::{Deserialize, Serialize};
-use tentacli_packet::{FieldsSerializer, LoginPacket};
+use tentacli_packet::{Segment, LoginPacket};
 use tentacli_traits::types::opcodes::Opcode;
 use tentacli_traits::types::realm::Realm;
 
@@ -34,7 +34,7 @@ impl PacketHandler for Handler {
         let realms_count = realms.len() as u16;
 
         let realms_bytes = {
-            #[derive(FieldsSerializer, Serialize, Deserialize)]
+            #[derive(Segment, Serialize, Deserialize)]
             struct RealmsSerializer {
                 realms: Realms,
             }

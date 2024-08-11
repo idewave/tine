@@ -1,11 +1,7 @@
 use async_trait::async_trait;
 use serde::{Deserialize, Serialize};
 use tentacli_packet::WorldPacket;
-use tentacli_traits::types::custom_fields::TerminatedString;
 use tentacli_traits::types::opcodes::Opcode;
-use tentacli_traits::types::player::{Class, Gender, Race};
-use tentacli_traits::types::spell::{CooldownInfo, Spell};
-use tentacli_utils::generate_random_number;
 
 use crate::primary::traits::PacketHandler;
 use crate::primary::types::{HandlerInput, HandlerOutput, HandlerResult};

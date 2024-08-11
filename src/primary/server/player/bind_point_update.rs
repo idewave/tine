@@ -1,16 +1,14 @@
 use async_trait::async_trait;
 use serde::{Deserialize, Serialize};
 use tentacli_packet::WorldPacket;
-use tentacli_traits::types::custom_fields::TerminatedString;
 use tentacli_traits::types::opcodes::Opcode;
-use tentacli_traits::types::player::{Class, Gender, Race};
-use tentacli_utils::generate_random_number;
+use crate::primary::server::mock_data::CurrentPlayer;
 
 use crate::primary::traits::PacketHandler;
 use crate::primary::types::{HandlerInput, HandlerOutput, HandlerResult};
 
 #[derive(WorldPacket, Serialize, Deserialize, Debug)]
-struct Outcome {
+struct Outgoing {
     x: f32,
     y: f32,
     z: f32,
@@ -24,12 +22,12 @@ impl PacketHandler for Handler {
     async fn handle(&mut self, _: &mut HandlerInput) -> HandlerResult {
         let mut response = Vec::new();
         response.push(HandlerOutput::Data(
-            Outcome {
-                x: 10349.6,
-                y: -6357.29,
-                z: 33.4026,
-                map_id: 530,
-                area_id: 3430,
+            Outgoing {
+                x: CurrentPlayer::POS_X,
+                y: CurrentPlayer::POS_Y,
+                z: CurrentPlayer::POS_Z,
+                map_id: CurrentPlayer::MAP_ID,
+                area_id: CurrentPlayer::ZONE_ID,
             }.to_binary_with_server_opcode(Opcode::SMSG_BINDPOINTUPDATE)?
         ));
 

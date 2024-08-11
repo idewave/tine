@@ -1,3 +1,4 @@
+use anyhow::{Result as AnyResult};
 use std::io::BufRead;
 use serde::{Deserialize, Deserializer, Serialize, Serializer};
 use std::fmt::{Debug};
@@ -9,7 +10,7 @@ use tentacli_traits::types::realm::Realm;
 pub struct Realms(pub Vec<Realm>);
 
 impl BinaryConverter for Realms {
-    fn write_into(&mut self, buffer: &mut Vec<u8>) -> Result<(), FieldError> {
+    fn write_into(&mut self, buffer: &mut Vec<u8>) -> AnyResult<()> {
         for realm in self.0.iter_mut() {
             buffer.push(realm.icon);
             buffer.push(realm.lock);
@@ -19,7 +20,7 @@ impl BinaryConverter for Realms {
             buffer.extend(realm.address.as_bytes());
             buffer.push(0);
             buffer.extend(&realm.population.to_le_bytes());
-            buffer.push(realm.characters);
+            buffer.push(realm.characters_amount);
             buffer.push(realm.timezone);
             buffer.push(realm.server_id);
         }
@@ -27,7 +28,7 @@ impl BinaryConverter for Realms {
         Ok(())
     }
 
-    fn read_from<R: BufRead>(_reader: R) -> Result<Self, FieldError> {
+    fn read_from<R: BufRead>(_: &mut R, _: &mut Vec<u8>) -> AnyResult<Self> {
         todo!()
     }
 }

@@ -28,7 +28,7 @@ impl Processor for PlayerProcessor {
                 vec![
                     Box::new(login_verify_world::Handler),
                     Box::new(motd::Handler),
-                    // Box::new(bind_point_update::Handler),
+                    Box::new(bind_point_update::Handler),
                     Box::new(initial_spells::Handler),
                     Box::new(init_world_states::Handler),
                     Box::new(login_set_timespeed::Handler),

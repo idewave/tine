@@ -1,19 +1,19 @@
 use async_trait::async_trait;
 use serde::{Deserialize, Serialize};
 use tentacli_packet::WorldPacket;
-use tentacli_traits::types::custom_fields::TerminatedString;
 use tentacli_traits::types::opcodes::Opcode;
 use tentacli_traits::types::player::{Class, Gender, Race};
 use tentacli_utils::generate_random_number;
+use crate::primary::server::mock_data::CurrentPlayer;
 
 use crate::primary::traits::PacketHandler;
 use crate::primary::types::{HandlerInput, HandlerOutput, HandlerResult};
 
 #[derive(WorldPacket, Serialize, Deserialize, Debug)]
-struct Outcome {
+struct Outgoing {
     characters_count: u8,
     guid: u64,
-    name: TerminatedString,
+    name: String,
     race: u8,
     class: u8,
     gender: u8,
@@ -44,10 +44,10 @@ impl PacketHandler for Handler {
     async fn handle(&mut self, _: &mut HandlerInput) -> HandlerResult {
         let mut response = Vec::new();
         response.push(HandlerOutput::Data(
-            Outcome {
+            Outgoing {
                 characters_count: 1,
-                guid: generate_random_number(),
-                name: TerminatedString("Test".to_string()),
+                guid: CurrentPlayer::GUID,
+                name: "Test\0".to_string(),
                 race: Race::HUMAN,
                 class: Class::PRIEST,
                 gender: Gender::GENDER_MALE,
@@ -56,16 +56,16 @@ impl PacketHandler for Handler {
                 hair_style: 1,
                 hair_color: 1,
                 facial_hair: 2,
-                level: 80,
-                zone_id: 3430,
-                map_id: 530,
-                x: 10349.6,
-                y: -6357.29,
-                z: 33.4026,
+                level: CurrentPlayer::LEVEL,
+                zone_id: CurrentPlayer::ZONE_ID,
+                map_id: CurrentPlayer::MAP_ID,
+                x: CurrentPlayer::POS_X,
+                y: CurrentPlayer::POS_Y,
+                z: CurrentPlayer::POS_Z,
                 guild_id: 0,
                 char_flags: 0,
                 char_customize_flags: 0,
-                first_login: 1,
+                first_login: 0,
                 pet_display_id: 0,
                 pet_level: 0,
                 pet_family: 0,

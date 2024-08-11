@@ -9,6 +9,7 @@ use tokio::sync::Mutex;
 
 use crate::primary::server::auth::auth_challenge;
 use crate::primary::server::{SERVER_HOST, WORLD_PORT};
+use crate::primary::server::movement::MovementProcessor;
 use crate::primary::server::player::PlayerProcessor;
 use crate::primary::server::realm::RealmProcessor;
 use crate::primary::server::types::Packet;
@@ -60,6 +61,7 @@ impl Server for WorldServer {
         vec![
             Box::new(RealmProcessor::get_handlers),
             Box::new(PlayerProcessor::get_handlers),
+            Box::new(MovementProcessor::get_handlers),
         ]
     }
 

@@ -19,7 +19,6 @@ pub struct HeaderCrypt {
 
 impl HeaderCrypt {
     pub fn new(secret: &[u8]) -> Self {
-        println!("SESS: {:?}", secret);
         let mut encryptor = RC4::new(
             HmacSha::new(&ENCRYPTION_KEY, secret, Sha1::default()).compute_digest().to_vec()
         );

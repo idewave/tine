@@ -3,7 +3,6 @@ use async_trait::async_trait;
 use serde::{Deserialize, Serialize};
 use sha1::Sha1;
 use tentacli_packet::LoginPacket;
-use tentacli_traits::types::custom_fields::TerminatedString;
 use tentacli_traits::types::opcodes::Opcode;
 use tokio::io::{AsyncBufRead, AsyncReadExt};
 
@@ -20,50 +19,17 @@ const VERSION_CHALLENGE: [u8; 16] = [
 pub struct LoginChallengeIncome {
     unknown: u8,
     packet_size: u16,
-    game_name: TerminatedString,
+    game_name: [u8; 4],
     version: [u8; 3],
     build: u16,
-    platform: TerminatedString,
-    os: TerminatedString,
-    #[dynamic_field]
-    locale: String,
+    platform: [u8; 4],
+    os: [u8; 4],
+    locale: [u8; 4],
     timezone: u32,
     ip: [u8; 4],
     account_length: u8,
-    #[dynamic_field]
+    #[depends_on(account_length)]
     account: String,
-}
-
-impl LoginChallengeIncome {
-    fn locale<R: BufRead>(mut reader: R, _: &mut Self) -> String {
-        let mut buffer = vec![0u8; 4];
-        reader.read_exact(&mut buffer).unwrap();
-        buffer.reverse();
-        String::from_utf8(buffer).unwrap()
-    }
-
-    async fn async_locale<R>(mut reader: R, _: &mut Self) -> String
-        where R: AsyncBufRead + Unpin + Send
-    {
-        let mut buffer = vec![0u8; 4];
-        reader.read_exact(&mut buffer).await.unwrap();
-        buffer.reverse();
-        String::from_utf8(buffer).unwrap()
-    }
-
-    fn account<R: BufRead>(mut reader: R, cache: &mut Self) -> String {
-        let mut buffer = vec![0u8; cache.account_length as usize];
-        reader.read_exact(&mut buffer).unwrap();
-        String::from_utf8(buffer).unwrap()
-    }
-
-    async fn async_account<R>(mut reader: R, cache: &mut Self) -> String
-        where R: AsyncBufRead + Unpin + Send
-    {
-        let mut buffer = vec![0u8; cache.account_length as usize];
-        reader.read_exact(&mut buffer).await.unwrap();
-        String::from_utf8(buffer).unwrap()
-    }
 }
 
 #[derive(LoginPacket, Serialize, Deserialize, Debug)]
@@ -76,7 +42,7 @@ struct Outcome {
     n_len: u8,
     n: Vec<u8>,
     salt: [u8; 32],
-    // seems like this field was added in wotlk
+    // added in wotlk ?
     version_challenge: [u8; 16],
     unknown2: u8,
 }
@@ -88,7 +54,6 @@ impl PacketHandler for Handler {
         let mut response = Vec::new();
 
         let (LoginChallengeIncome { account, .. }, _) = LoginChallengeIncome::from_binary(&input.data)?;
-        println!("ACC: {}", account);
         let mut srp = input.srp.lock().await;
         srp.set_account(account);
         srp.generate_verifier::<Sha1>();
