@@ -1,3 +1,5 @@
+use std::time::{SystemTime, UNIX_EPOCH};
+
 use async_trait::async_trait;
 use serde::{Deserialize, Serialize};
 use tentacli_packet::WorldPacket;
@@ -8,28 +10,27 @@ use crate::primary::types::{HandlerInput, HandlerOutput, HandlerResult};
 
 #[derive(WorldPacket, Serialize, Deserialize, Debug)]
 struct Outgoing {
-    unknown: u8,
-    spells_count: u16,
-    spells: Vec<u8>,
-    cooldowns_count: u16,
-    cooldowns: Vec<u8>,
+    time: u32,
+    time2: u32,
 }
 
 pub struct Handler;
 #[async_trait]
 impl PacketHandler for Handler {
     async fn handle(&mut self, _: &mut HandlerInput) -> HandlerResult {
-        println!("SEND Opcode::SMSG_INITIAL_SPELLS");
+        println!("SEND Opcode::SMSG_QUERY_TIME_RESPONSE");
+
+        let current_time = SystemTime::now()
+            .duration_since(UNIX_EPOCH)
+            .expect("Time went backwards")
+            .as_secs();
 
         Ok(vec![HandlerOutput::Data(
             Outgoing {
-                unknown: 0,
-                spells_count: 0,
-                spells: vec![],
-                cooldowns_count: 0,
-                cooldowns: vec![],
+                time: current_time as u32,
+                time2: current_time as u32,
             }
-            .to_binary_with_server_opcode(Opcode::SMSG_INITIAL_SPELLS)?,
+            .to_binary_with_server_opcode(Opcode::SMSG_QUERY_TIME_RESPONSE)?,
         )])
     }
 }

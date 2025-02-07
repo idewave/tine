@@ -8,28 +8,20 @@ use crate::primary::types::{HandlerInput, HandlerOutput, HandlerResult};
 
 #[derive(WorldPacket, Serialize, Deserialize, Debug)]
 struct Outgoing {
-    unknown: u8,
-    spells_count: u16,
-    spells: Vec<u8>,
-    cooldowns_count: u16,
-    cooldowns: Vec<u8>,
+    text: String,
 }
 
 pub struct Handler;
 #[async_trait]
 impl PacketHandler for Handler {
     async fn handle(&mut self, _: &mut HandlerInput) -> HandlerResult {
-        println!("SEND Opcode::SMSG_INITIAL_SPELLS");
+        println!("SEND Opcode::SMSG_NOTIFICATION");
 
         Ok(vec![HandlerOutput::Data(
             Outgoing {
-                unknown: 0,
-                spells_count: 0,
-                spells: vec![],
-                cooldowns_count: 0,
-                cooldowns: vec![],
+                text: String::from("TINE is in development...\0"),
             }
-            .to_binary_with_server_opcode(Opcode::SMSG_INITIAL_SPELLS)?,
+            .to_binary_with_server_opcode(Opcode::SMSG_NOTIFICATION)?,
         )])
     }
 }

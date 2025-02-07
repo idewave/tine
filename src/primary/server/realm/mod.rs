@@ -1,14 +1,17 @@
 use tentacli_traits::types::opcodes::Opcode;
 
-mod auth_response;
-mod addon_info;
-mod client_cache_version;
-mod tutorial_flags;
-mod set_encryption;
-mod account_data_times;
-
 use crate::primary::traits::processor::Processor;
 use crate::primary::types::{HandlerInput, ProcessorResult};
+
+mod account_data_times;
+mod addon_info;
+mod auth_response;
+mod client_cache_version;
+mod notification;
+mod set_encryption;
+mod set_time;
+mod set_ui_time;
+mod tutorial_flags;
 
 pub struct RealmProcessor;
 
@@ -22,15 +25,18 @@ impl Processor for RealmProcessor {
                     Box::new(addon_info::Handler),
                     Box::new(client_cache_version::Handler),
                     Box::new(tutorial_flags::Handler),
-                    // Box::new(auth_response::Handler),
-                ]
-            },
-            Opcode::CMSG_READY_FOR_ACCOUNT_DATA_TIMES => {
-                vec![
-                    Box::new(account_data_times::Handler),
                 ]
             }
-            _ => vec![]
+            Opcode::CMSG_UI_TIME_REQUEST => {
+                vec![Box::new(set_ui_time::Handler)]
+            }
+            Opcode::CMSG_QUERY_TIME => {
+                vec![Box::new(set_time::Handler)]
+            }
+            Opcode::CMSG_PLAYER_LOGIN => {
+                vec![Box::new(notification::Handler)]
+            }
+            _ => vec![],
         };
 
         handlers

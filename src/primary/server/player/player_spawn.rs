@@ -154,7 +154,7 @@ impl PacketHandler for Handler {
                 unit_fields: {
                     let mut map: BTreeMap<UnitField, FieldValue> = BTreeMap::new();
                     map.insert(UnitField::AttackPower, FieldValue::Integer(26));
-                    map.insert(UnitField::AuraState, FieldValue::Integer(4194304));
+
                     map.insert(
                         UnitField::BaseAttackTime,
                         FieldValue::IntegerArray(vec![1600, 1600]),
@@ -164,6 +164,7 @@ impl PacketHandler for Handler {
                     map.insert(UnitField::BoundingRadius, FieldValue::Float(0.306));
                     map.insert(UnitField::Bytes0, FieldValue::Bytes(2049));
                     map.insert(UnitField::Bytes1, FieldValue::Bytes(1));
+
                     map.insert(UnitField::CombatReach, FieldValue::Float(1.5));
                     map.insert(
                         UnitField::DisplayId,
