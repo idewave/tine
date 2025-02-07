@@ -19,8 +19,9 @@ pub struct Handler;
 #[async_trait]
 impl PacketHandler for Handler {
     async fn handle(&mut self, _: &mut HandlerInput) -> HandlerResult {
-        let mut response = Vec::new();
-        response.push(HandlerOutput::Data(
+        println!("SEND Opcode::SMSG_INIT_WORLD_STATES");
+
+        Ok(vec![HandlerOutput::Data(
             Outgoing {
                 map_id: 530,
                 zone_id: 3430,
@@ -37,10 +38,6 @@ impl PacketHandler for Handler {
                 ],
             }
             .to_binary_with_server_opcode(Opcode::SMSG_INIT_WORLD_STATES)?,
-        ));
-
-        println!("SEND Opcode::SMSG_INIT_WORLD_STATES");
-
-        Ok(response)
+        )])
     }
 }

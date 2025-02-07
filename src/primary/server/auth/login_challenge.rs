@@ -12,7 +12,7 @@ const VERSION_CHALLENGE: [u8; 16] = [
 ];
 
 #[derive(LoginPacket, Serialize, Deserialize, Debug)]
-pub struct LoginChallengeIncome {
+pub struct LoginChallengeIncoming {
     unknown: u8,
     packet_size: u16,
     game_name: [u8; 4],
@@ -47,20 +47,18 @@ pub struct Handler;
 #[async_trait]
 impl PacketHandler for Handler {
     async fn handle(&mut self, input: &mut HandlerInput) -> HandlerResult {
-        let mut response = Vec::new();
-
-        let (LoginChallengeIncome { account, .. }, _) =
-            LoginChallengeIncome::from_binary(&input.data)?;
+        let (LoginChallengeIncoming { account, .. }, _) =
+            LoginChallengeIncoming::from_binary(&input.data)?;
         let mut srp = input.srp.lock().await;
         srp.set_account(account);
         srp.generate_verifier::<Sha1>();
-        srp.generate_server_ephemeral::<Sha1>();
+        srp.generate_server_ephemeral();
 
         let (_, server_ephemeral) = srp.server_ephemeral.as_ref().unwrap().to_bytes_le();
         let (_, generator) = srp.generator.to_bytes_le();
         let (_, modulus) = srp.modulus.to_bytes_le();
 
-        response.push(HandlerOutput::Data(
+        Ok(vec![HandlerOutput::Data(
             Outgoing {
                 unknown: 0,
                 code: 0,
@@ -74,8 +72,6 @@ impl PacketHandler for Handler {
                 unknown2: 0,
             }
             .to_binary_with_opcode(Opcode::LOGIN_CHALLENGE)?,
-        ));
-
-        Ok(response)
+        )])
     }
 }

@@ -16,17 +16,14 @@ pub struct Handler;
 #[async_trait]
 impl PacketHandler for Handler {
     async fn handle(&mut self, _: &mut HandlerInput) -> HandlerResult {
-        let mut response = Vec::new();
-        response.push(HandlerOutput::Data(
+        println!("SEND Opcode::SMSG_MOTD");
+
+        Ok(vec![HandlerOutput::Data(
             Outgoing {
                 lines_count: 1,
                 lines: String::from("Welcome to the TINE Test Server\0"),
             }
             .to_binary_with_server_opcode(Opcode::SMSG_MOTD)?,
-        ));
-
-        println!("SEND Opcode::SMSG_MOTD");
-
-        Ok(response)
+        )])
     }
 }

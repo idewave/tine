@@ -1,17 +1,20 @@
-use std::sync::{Arc};
-use anyhow::{Result as AnyResult};
+use std::sync::Arc;
+
+use anyhow::Result as AnyResult;
 use async_trait::async_trait;
 use tentacli_traits::types::opcodes::Opcode;
 use tokio::io::{AsyncReadExt, BufReader};
 use tokio::net::TcpStream;
 use tokio::sync::Mutex;
 
-use crate::primary::server::auth::{AuthProcessor, LoginChallengeIncome, LoginProofIncome, RealmlistIncome};
-use crate::primary::server::{SERVER_HOST, LOGIN_PORT};
+use crate::primary::server::{LOGIN_PORT, SERVER_HOST};
+use crate::primary::server::auth::{
+    AuthProcessor, LoginChallengeIncoming, LoginProofIncoming, RealmlistIncoming,
+};
 use crate::primary::server::types::Packet;
 use crate::primary::traits::processor::Processor;
 use crate::primary::traits::server::{Connection, Server};
-use crate::primary::types::{ProcessorFunction};
+use crate::primary::types::ProcessorFunction;
 
 pub struct LoginServer {}
 
@@ -21,21 +24,21 @@ impl Server for LoginServer {
         Self {}
     }
 
-    async fn read_packet(
-        socket: &mut TcpStream,
-        _: Arc<Mutex<Connection>>
-    ) -> AnyResult<Packet> {
+    async fn read_packet(socket: &mut TcpStream, _: Arc<Mutex<Connection>>) -> AnyResult<Packet> {
         let opcode = socket.read_u8().await?;
         let mut reader = BufReader::new(socket);
 
         let data = match opcode {
-            Opcode::LOGIN_CHALLENGE => LoginChallengeIncome::from_stream(&mut reader).await?,
-            Opcode::LOGIN_PROOF => LoginProofIncome::from_stream(&mut reader).await?,
-            Opcode::REALM_LIST => RealmlistIncome::from_stream(&mut reader).await?,
+            Opcode::LOGIN_CHALLENGE => LoginChallengeIncoming::from_stream(&mut reader).await?,
+            Opcode::LOGIN_PROOF => LoginProofIncoming::from_stream(&mut reader).await?,
+            Opcode::REALM_LIST => RealmlistIncoming::from_stream(&mut reader).await?,
             _ => vec![],
         };
 
-        Ok(Packet { opcode: opcode as u32, data })
+        Ok(Packet {
+            opcode: opcode as u32,
+            data,
+        })
     }
 
     fn get_processors() -> Vec<ProcessorFunction> {

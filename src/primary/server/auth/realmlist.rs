@@ -7,11 +7,11 @@ use tentacli_traits::types::realm::Realm;
 
 use crate::primary::server::WORLD_PORT;
 use crate::primary::traits::packet_handler::PacketHandler;
-use crate::primary::types::{HandlerInput, HandlerOutput, HandlerResult};
 use crate::primary::types::fields::realms::Realms;
+use crate::primary::types::{HandlerInput, HandlerOutput, HandlerResult};
 
 #[derive(LoginPacket, Serialize, Deserialize, Debug)]
-pub struct RealmlistIncome {
+pub struct RealmlistIncoming {
     skip: u32,
 }
 
@@ -28,7 +28,6 @@ pub struct Handler;
 #[async_trait]
 impl PacketHandler for Handler {
     async fn handle(&mut self, _: &mut HandlerInput) -> HandlerResult {
-        let mut response = Vec::new();
         let realms = Self::generate_unique_realms();
         let realms_count = realms.len() as u16;
 
@@ -45,7 +44,7 @@ impl PacketHandler for Handler {
             .unwrap()
         };
 
-        response.push(HandlerOutput::Data(
+        Ok(vec![HandlerOutput::Data(
             Outgoing {
                 size: (realms_bytes.len() + 8) as u16,
                 unknown: 0,
@@ -54,9 +53,7 @@ impl PacketHandler for Handler {
                 unknown2: 0x0010,
             }
             .to_binary_with_opcode(Opcode::REALM_LIST)?,
-        ));
-
-        Ok(response)
+        )])
     }
 }
 

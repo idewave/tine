@@ -17,18 +17,15 @@ pub struct Handler;
 #[async_trait]
 impl PacketHandler for Handler {
     async fn handle(&mut self, _: &mut HandlerInput) -> HandlerResult {
-        let mut response = Vec::new();
-        response.push(HandlerOutput::Data(
+        println!("SEND Opcode::SMSG_LOGIN_SETTIMESPEED");
+
+        Ok(vec![HandlerOutput::Data(
             Outgoing {
                 uptime: 406030890,
                 game_speed: 0.01666667,
                 unknown: 0,
             }
             .to_binary_with_server_opcode(Opcode::SMSG_LOGIN_SETTIMESPEED)?,
-        ));
-
-        println!("SEND Opcode::SMSG_LOGIN_SETTIMESPEED");
-
-        Ok(response)
+        )])
     }
 }

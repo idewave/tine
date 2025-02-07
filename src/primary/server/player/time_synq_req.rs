@@ -15,13 +15,10 @@ pub struct Handler;
 #[async_trait]
 impl PacketHandler for Handler {
     async fn handle(&mut self, _: &mut HandlerInput) -> HandlerResult {
-        let mut response = Vec::new();
-        response.push(HandlerOutput::Data(
-            Outgoing { unknown: 0 }.to_binary_with_server_opcode(Opcode::SMSG_TIME_SYNC_REQ)?,
-        ));
-
         println!("SEND Opcode::SMSG_TIME_SYNC_REQ");
 
-        Ok(response)
+        Ok(vec![HandlerOutput::Data(
+            Outgoing { unknown: 0 }.to_binary_with_server_opcode(Opcode::SMSG_TIME_SYNC_REQ)?,
+        )])
     }
 }

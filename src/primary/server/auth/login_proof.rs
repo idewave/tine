@@ -9,7 +9,7 @@ use crate::primary::traits::packet_handler::PacketHandler;
 use crate::primary::types::{HandlerInput, HandlerOutput, HandlerResult};
 
 #[derive(LoginPacket, Serialize, Deserialize, Debug)]
-pub struct LoginProofIncome {
+pub struct LoginProofIncoming {
     client_ephemeral: [u8; 32],
     client_proof: [u8; 20],
     crc_hash: [u8; 20],
@@ -32,13 +32,13 @@ impl PacketHandler for Handler {
     async fn handle(&mut self, input: &mut HandlerInput) -> HandlerResult {
         let mut response = Vec::new();
         let (
-            LoginProofIncome {
+            LoginProofIncoming {
                 client_ephemeral,
                 client_proof,
                 ..
             },
             _,
-        ) = LoginProofIncome::from_binary(&input.data)?;
+        ) = LoginProofIncoming::from_binary(&input.data)?;
 
         let mut srp = input.srp.lock().await;
         srp.calculate_session_key::<Sha1>(&client_ephemeral);

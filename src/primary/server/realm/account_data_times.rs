@@ -20,8 +20,9 @@ pub struct Handler;
 #[async_trait]
 impl PacketHandler for Handler {
     async fn handle(&mut self, _: &mut HandlerInput) -> HandlerResult {
-        let mut response = Vec::new();
-        response.push(HandlerOutput::Data(
+        println!("SENT SMSG_ACCOUNT_DATA_TIMES");
+
+        Ok(vec![HandlerOutput::Data(
             Outgoing {
                 timestamp: SystemTime::now().duration_since(UNIX_EPOCH)?.as_secs() as u32,
                 unknown: 1,
@@ -29,10 +30,6 @@ impl PacketHandler for Handler {
                 data: [0u8; 12],
             }
             .to_binary_with_server_opcode(Opcode::SMSG_ACCOUNT_DATA_TIMES)?,
-        ));
-
-        println!("SENT SMSG_ACCOUNT_DATA_TIMES");
-
-        Ok(response)
+        )])
     }
 }

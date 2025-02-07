@@ -121,8 +121,8 @@ pub trait Server: Send {
                                                 let header_size: usize =
                                                     if is_large_packet { 5 } else { 4 };
 
-                                                let encrypted_header = header_crypt
-                                                    .encrypt(&packet[..header_size].to_vec());
+                                                let encrypted_header =
+                                                    header_crypt.encrypt(&packet[..header_size]);
                                                 packet[..header_size]
                                                     .copy_from_slice(&encrypted_header);
                                             }

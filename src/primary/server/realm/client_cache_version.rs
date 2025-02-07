@@ -15,14 +15,11 @@ pub struct Handler;
 #[async_trait]
 impl PacketHandler for Handler {
     async fn handle(&mut self, _: &mut HandlerInput) -> HandlerResult {
-        let mut response = Vec::new();
-        response.push(HandlerOutput::Data(
-            Outgoing { version: 1 }
-                .to_binary_with_server_opcode(Opcode::SMSG_CLIENTCACHE_VERSION)?,
-        ));
-
         println!("[SEND] Opcode::SMSG_CLIENTCACHE_VERSION");
 
-        Ok(response)
+        Ok(vec![HandlerOutput::Data(
+            Outgoing { version: 1 }
+                .to_binary_with_server_opcode(Opcode::SMSG_CLIENTCACHE_VERSION)?,
+        )])
     }
 }

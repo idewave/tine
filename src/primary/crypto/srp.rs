@@ -1,6 +1,6 @@
 use num_bigint::{BigInt, Sign};
 use num_traits::{FromPrimitive, Num};
-use sha1::{Digest};
+use sha1::Digest;
 
 const MODULUS: &str = "894B645E89E1535BBDAD5B8B290650530801B18EBFBF5E8FAB3C82872A3E9BB7";
 
@@ -14,7 +14,7 @@ pub struct Srp {
     pub multiplier: BigInt,
     private_ephemeral: BigInt,
     account: Option<String>,
-    verifier: Option<BigInt>
+    verifier: Option<BigInt>,
 }
 
 // public methods
@@ -37,7 +37,10 @@ impl Srp {
         }
     }
 
-    pub fn calculate_proof<D>(&mut self, client_ephemeral: &[u8]) -> Vec<u8> where D: Digest {
+    pub fn calculate_proof<D>(&mut self, client_ephemeral: &[u8]) -> Vec<u8>
+    where
+        D: Digest,
+    {
         let server_ephemeral = self.server_ephemeral.as_mut().unwrap().clone();
         let session_key = self.session_key.as_ref().unwrap().to_vec();
 
@@ -52,22 +55,27 @@ impl Srp {
             .to_vec()
     }
 
-    pub fn generate_verifier<D>(&mut self) where D: Digest {
+    pub fn generate_verifier<D>(&mut self)
+    where
+        D: Digest,
+    {
         let x = self.calculate_x::<D>();
-        let verifier = self.generator.modpow(
-            &x,
-            &self.modulus,
-        );
+        let verifier = self.generator.modpow(&x, &self.modulus);
         self.verifier = Some(verifier);
     }
 
-    pub fn generate_server_ephemeral<D>(&mut self) where D: Digest {
+    pub fn generate_server_ephemeral(&mut self) {
         let v = self.verifier.as_ref().unwrap();
-        let big_integer = self.generator.modpow(&self.private_ephemeral, &self.modulus);
+        let big_integer = self
+            .generator
+            .modpow(&self.private_ephemeral, &self.modulus);
         self.server_ephemeral = Some((&self.multiplier * v + &big_integer) % &self.modulus);
     }
 
-    pub fn calculate_session_key<D>(&mut self, client_ephemeral: &[u8]) where D: Digest {
+    pub fn calculate_session_key<D>(&mut self, client_ephemeral: &[u8])
+    where
+        D: Digest,
+    {
         let v = { self.verifier.as_ref().unwrap().clone() };
         let u = self.calculate_u::<D>(client_ephemeral);
         let a_pub_num = BigInt::from_bytes_le(Sign::Plus, client_ephemeral);
@@ -88,19 +96,16 @@ impl Srp {
 // private methods
 impl Srp {
     fn calculate_account_hash<D>(&mut self) -> Vec<u8>
-        where
-            D: Digest
+    where
+        D: Digest,
     {
         let account = self.account.as_ref().unwrap();
-        D::new()
-            .chain(account.as_bytes())
-            .finalize()
-            .to_vec()
+        D::new().chain(account.as_bytes()).finalize().to_vec()
     }
 
     fn calculate_xor_hash<D>(&mut self) -> Vec<u8>
-        where
-            D: Digest,
+    where
+        D: Digest,
     {
         let n_hash = D::new().chain(self.modulus.to_bytes_le().1).finalize();
         let g_hash = D::new().chain(self.generator.to_bytes_le().1).finalize();
@@ -114,8 +119,8 @@ impl Srp {
     }
 
     fn calculate_x<D>(&mut self) -> BigInt
-        where
-            D: Digest,
+    where
+        D: Digest,
     {
         let account = self.account.as_ref().unwrap();
         let identity_hash = D::new()
@@ -133,8 +138,8 @@ impl Srp {
     }
 
     fn calculate_u<D>(&mut self, client_ephemeral: &[u8]) -> BigInt
-        where
-            D: Digest,
+    where
+        D: Digest,
     {
         let server_ephemeral = self.server_ephemeral.as_ref().unwrap();
         let u = D::new()
@@ -147,14 +152,15 @@ impl Srp {
     }
 
     fn calculate_interleaved<D>(s: BigInt) -> Vec<u8>
-        where
-            D: Digest
+    where
+        D: Digest,
     {
-        let (even, odd): (Vec<_>, Vec<_>) =
-            s.to_bytes_le().1
-                .into_iter()
-                .enumerate()
-                .partition(|(i, _)| i % 2 == 0);
+        let (even, odd): (Vec<_>, Vec<_>) = s
+            .to_bytes_le()
+            .1
+            .into_iter()
+            .enumerate()
+            .partition(|(i, _)| i % 2 == 0);
 
         let part1 = even.iter().map(|(_, v)| *v).collect::<Vec<u8>>();
         let part2 = odd.iter().map(|(_, v)| *v).collect::<Vec<u8>>();

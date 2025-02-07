@@ -21,8 +21,9 @@ pub struct Handler;
 #[async_trait]
 impl PacketHandler for Handler {
     async fn handle(&mut self, _: &mut HandlerInput) -> HandlerResult {
-        let mut response = Vec::new();
-        response.push(HandlerOutput::Data(
+        println!("SEND Opcode::SMSG_INITIAL_SPELLS");
+
+        Ok(vec![HandlerOutput::Data(
             Outgoing {
                 unknown: 0,
                 spells_count: 0,
@@ -31,10 +32,6 @@ impl PacketHandler for Handler {
                 cooldowns: vec![],
             }
             .to_binary_with_server_opcode(Opcode::SMSG_INITIAL_SPELLS)?,
-        ));
-
-        println!("SEND Opcode::SMSG_INITIAL_SPELLS");
-
-        Ok(response)
+        )])
     }
 }

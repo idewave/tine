@@ -1,18 +1,18 @@
 use tentacli_traits::types::opcodes::Opcode;
 
-mod login_challenge;
-mod realmlist;
-mod login_proof;
-mod types;
-mod auth_challenge;
+pub use auth_challenge::handle as auth_challenge;
+pub use login_challenge::LoginChallengeIncoming;
+pub use login_proof::LoginProofIncoming;
+pub use realmlist::RealmlistIncoming;
 
 use crate::primary::traits::processor::Processor;
 use crate::primary::types::{HandlerInput, ProcessorResult};
 
-pub use login_challenge::LoginChallengeIncome;
-pub use login_proof::LoginProofIncome;
-pub use realmlist::RealmlistIncome;
-pub use auth_challenge::handle as auth_challenge;
+mod auth_challenge;
+mod login_challenge;
+mod login_proof;
+mod realmlist;
+mod types;
 
 pub struct AuthProcessor;
 
@@ -23,10 +23,10 @@ impl Processor for AuthProcessor {
         let handlers: ProcessorResult = match opcode {
             Opcode::LOGIN_CHALLENGE => {
                 vec![Box::new(login_challenge::Handler)]
-            },
+            }
             Opcode::LOGIN_PROOF => {
                 vec![Box::new(login_proof::Handler)]
-            },
+            }
             Opcode::REALM_LIST => {
                 vec![Box::new(realmlist::Handler)]
             }

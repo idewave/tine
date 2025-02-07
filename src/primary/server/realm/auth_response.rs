@@ -8,7 +8,7 @@ use crate::primary::types::{HandlerInput, HandlerOutput, HandlerResult};
 
 // Opcode::CMSG_AUTH_SESSION
 #[derive(WorldPacket, Serialize, Deserialize, Debug)]
-struct Income {
+struct Incoming {
     build: u32,
     unknown: u32,
     account: String,
@@ -36,10 +36,11 @@ pub struct Handler;
 #[async_trait]
 impl PacketHandler for Handler {
     async fn handle(&mut self, input: &mut HandlerInput) -> HandlerResult {
-        let mut response = Vec::new();
-        let (Income { .. }, _) = Income::from_binary(&input.data)?;
+        let (Incoming { .. }, _) = Incoming::from_binary(&input.data)?;
 
-        response.push(HandlerOutput::Data(
+        println!("[SEND] Opcode::SMSG_AUTH_RESPONSE");
+
+        Ok(vec![HandlerOutput::Data(
             Outgoing {
                 status: 0x0C,
                 billing_time_remaining: 0,
@@ -48,10 +49,6 @@ impl PacketHandler for Handler {
                 expansion: 2,
             }
             .to_binary_with_server_opcode(Opcode::SMSG_AUTH_RESPONSE)?,
-        ));
-
-        println!("[SEND] Opcode::SMSG_AUTH_RESPONSE");
-
-        Ok(response)
+        )])
     }
 }

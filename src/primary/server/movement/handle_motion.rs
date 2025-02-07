@@ -18,7 +18,6 @@ pub struct Handler;
 #[async_trait]
 impl PacketHandler for Handler {
     async fn handle(&mut self, input: &mut HandlerInput) -> HandlerResult {
-        let mut response = Vec::new();
         let (
             Incoming {
                 packed_guid,
@@ -27,16 +26,14 @@ impl PacketHandler for Handler {
             _,
         ) = Incoming::from_binary(&input.data)?;
 
-        response.push(HandlerOutput::Data(
+        println!("{:?}", Opcode::get_opcode_name(input.opcode));
+
+        Ok(vec![HandlerOutput::Data(
             Incoming {
                 packed_guid,
                 movement_info,
             }
             .to_binary_with_server_opcode(input.opcode as u16)?,
-        ));
-
-        println!("{:?}", Opcode::get_opcode_name(input.opcode));
-
-        Ok(response)
+        )])
     }
 }
