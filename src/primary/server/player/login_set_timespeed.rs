@@ -7,7 +7,7 @@ use crate::primary::traits::PacketHandler;
 use crate::primary::types::{HandlerInput, HandlerOutput, HandlerResult};
 
 #[derive(WorldPacket, Serialize, Deserialize, Debug)]
-struct Outcome {
+struct Outgoing {
     uptime: u32,
     game_speed: f32,
     unknown: u32,
@@ -19,11 +19,12 @@ impl PacketHandler for Handler {
     async fn handle(&mut self, _: &mut HandlerInput) -> HandlerResult {
         let mut response = Vec::new();
         response.push(HandlerOutput::Data(
-            Outcome {
+            Outgoing {
                 uptime: 406030890,
                 game_speed: 0.01666667,
                 unknown: 0,
-            }.to_binary_with_server_opcode(Opcode::SMSG_LOGIN_SETTIMESPEED)?
+            }
+            .to_binary_with_server_opcode(Opcode::SMSG_LOGIN_SETTIMESPEED)?,
         ));
 
         println!("SEND Opcode::SMSG_LOGIN_SETTIMESPEED");

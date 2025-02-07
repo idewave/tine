@@ -1,8 +1,7 @@
 use std::collections::BTreeMap;
 
 use async_trait::async_trait;
-use serde::{Serialize, Serializer};
-use serde::ser::SerializeStruct;
+use serde::Serialize;
 use tentacli_packet::{Segment, WorldPacket};
 use tentacli_traits::types::custom_fields::PackedGuid;
 use tentacli_traits::types::movement::{
@@ -19,7 +18,7 @@ use crate::primary::traits::PacketHandler;
 use crate::primary::types::{HandlerInput, HandlerOutput, HandlerResult};
 
 #[derive(WorldPacket, Serialize, Debug)]
-pub struct UpdateDataIncoming {
+pub struct UpdateDataOutgoing {
     pub blocks_amount: u32,
     #[depends_on(blocks_amount)]
     pub blocks: Vec<Block>,
@@ -404,7 +403,7 @@ impl PacketHandler for Handler {
 
         let blocks = vec![block];
 
-        let packet = UpdateDataIncoming {
+        let packet = UpdateDataOutgoing {
             blocks_amount: blocks.len() as u32,
             blocks,
         }

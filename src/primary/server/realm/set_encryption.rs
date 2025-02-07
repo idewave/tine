@@ -11,7 +11,7 @@ use crate::primary::types::{HandlerInput, HandlerResult};
 struct Income {
     build: u32,
     unknown: u32,
-    account : String,
+    account: String,
     unknown2: u32,
     client_seed: [u8; 4],
     unknown3: u64,
@@ -24,7 +24,7 @@ struct Income {
 
 // Opcode::SMSG_AUTH_RESPONSE
 #[derive(WorldPacket, Serialize, Deserialize, Debug)]
-struct Outcome {
+struct Outgoing {
     status: u8,
     billing_time_remaining: u32,
     billing_plan_flags: u8,

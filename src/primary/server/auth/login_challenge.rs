@@ -29,7 +29,7 @@ pub struct LoginChallengeIncome {
 }
 
 #[derive(LoginPacket, Serialize, Deserialize, Debug)]
-struct Outcome {
+struct Outgoing {
     unknown: u8,
     code: u8,
     server_ephemeral: Vec<u8>,
@@ -61,7 +61,7 @@ impl PacketHandler for Handler {
         let (_, modulus) = srp.modulus.to_bytes_le();
 
         response.push(HandlerOutput::Data(
-            Outcome {
+            Outgoing {
                 unknown: 0,
                 code: 0,
                 server_ephemeral: server_ephemeral.into(),

@@ -3,9 +3,8 @@ use serde::{Deserialize, Serialize};
 use tentacli_packet::WorldPacket;
 use tentacli_traits::types::opcodes::Opcode;
 use tentacli_traits::types::player::{Class, Gender, Race};
-use tentacli_utils::generate_random_number;
-use crate::primary::server::mock_data::CurrentPlayer;
 
+use crate::primary::server::mock_data::CurrentPlayer;
 use crate::primary::traits::PacketHandler;
 use crate::primary::types::{HandlerInput, HandlerOutput, HandlerResult};
 
@@ -35,7 +34,7 @@ struct Outgoing {
     pet_display_id: u32,
     pet_level: u32,
     pet_family: u32,
-    inventory: Vec<u8>
+    inventory: Vec<u8>,
 }
 
 pub struct Handler;
@@ -70,7 +69,8 @@ impl PacketHandler for Handler {
                 pet_level: 0,
                 pet_family: 0,
                 inventory: vec![0u8; 9 * 23],
-            }.to_binary_with_server_opcode(Opcode::SMSG_CHAR_ENUM)?
+            }
+            .to_binary_with_server_opcode(Opcode::SMSG_CHAR_ENUM)?,
         ));
 
         println!("SEND Opcode::SMSG_CHAR_ENUM");

@@ -1,15 +1,16 @@
-use std::sync::{Arc};
+use std::sync::Arc;
 use std::time::Duration;
-use anyhow::{Result as AnyResult};
+
+use anyhow::Result as AnyResult;
 use async_trait::async_trait;
 use colored::Colorize;
 use tentacli_traits::types::opcodes::Opcode;
-use tokio::io::{AsyncWriteExt};
+use tokio::io::AsyncWriteExt;
 use tokio::net::{TcpListener, TcpStream};
 use tokio::sync::{mpsc, Mutex};
 use tokio::time::sleep;
-use crate::primary::crypto::header_crypt::HeaderCrypt;
 
+use crate::primary::crypto::header_crypt::HeaderCrypt;
 use crate::primary::crypto::srp::Srp;
 use crate::primary::server::types::Packet;
 use crate::primary::types::{HandlerInput, HandlerOutput, ProcessorFunction, ProcessorResult};
@@ -31,7 +32,11 @@ pub trait Server: Send {
         let (shutdown_tx, mut shutdown_rx) = mpsc::channel::<()>(1);
 
         let listener = TcpListener::bind(format!("{}:{}", Self::host(), Self::port())).await?;
-        println!("[{}] is started on port {}", Self::server_name(), Self::port().to_string());
+        println!(
+            "[{}] is started on port {}",
+            Self::server_name(),
+            Self::port().to_string()
+        );
 
         loop {
             tokio::select! {
@@ -78,7 +83,7 @@ pub trait Server: Send {
 
     async fn read_packet(
         socket: &mut TcpStream,
-        connection: Arc<Mutex<Connection>>
+        connection: Arc<Mutex<Connection>>,
     ) -> AnyResult<Packet>;
 
     async fn handle_connection(mut socket: TcpStream, options: Arc<RunOptions>) -> AnyResult<()> {
@@ -110,31 +115,34 @@ pub trait Server: Send {
                                     match output {
                                         HandlerOutput::Data(mut packet) => {
                                             let mut guard = connection.lock().await;
-                                            if let Some(mut header_crypt) = guard.header_crypt.as_mut() {
+                                            if let Some(header_crypt) = guard.header_crypt.as_mut()
+                                            {
                                                 let is_large_packet = packet[0] >= 0x80;
-                                                let header_size: usize = if is_large_packet { 5 } else { 4 };
+                                                let header_size: usize =
+                                                    if is_large_packet { 5 } else { 4 };
 
                                                 let encrypted_header = header_crypt
                                                     .encrypt(&packet[..header_size].to_vec());
-                                                packet[..header_size].copy_from_slice(&encrypted_header);
+                                                packet[..header_size]
+                                                    .copy_from_slice(&encrypted_header);
                                             }
 
                                             socket.write_all(&packet).await.unwrap();
-                                        },
-                                        HandlerOutput::SessionKey(_key) => {},
+                                        }
+                                        HandlerOutput::SessionKey(_key) => {}
                                     }
                                 }
-                            },
+                            }
                             Err(err) => {
                                 println!("[ERROR]: {}", err.to_string().red())
-                            },
+                            }
                         };
                     }
-                },
+                }
                 Err(err) => {
                     println!("Error on packet read: {:?}", err.to_string());
                     break;
-                },
+                }
             }
 
             sleep(Duration::from_millis(100)).await;

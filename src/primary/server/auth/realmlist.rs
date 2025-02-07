@@ -16,7 +16,7 @@ pub struct RealmlistIncome {
 }
 
 #[derive(LoginPacket, Serialize, Deserialize, Debug, Default)]
-struct Outcome {
+struct Outgoing {
     size: u16,
     unknown: u32,
     realms_count: u16,
@@ -46,7 +46,7 @@ impl PacketHandler for Handler {
         };
 
         response.push(HandlerOutput::Data(
-            Outcome {
+            Outgoing {
                 size: (realms_bytes.len() + 8) as u16,
                 unknown: 0,
                 realms_count,

@@ -1,29 +1,27 @@
-mod char_enum;
-mod login_verify_world;
-mod motd;
-mod bind_point_update;
-mod initial_spells;
-mod init_world_states;
-mod login_set_timespeed;
-mod player_spawn;
-mod time_synq_req;
-mod load_equipment_set;
-mod played_time;
-
 use tentacli_traits::types::opcodes::Opcode;
 
 use crate::primary::traits::processor::Processor;
 use crate::primary::types::{HandlerInput, ProcessorResult};
+
+mod bind_point_update;
+mod char_enum;
+mod init_world_states;
+mod initial_spells;
+mod load_equipment_set;
+mod login_set_timespeed;
+mod login_verify_world;
+mod motd;
+mod played_time;
+mod player_spawn;
+mod time_synq_req;
 
 pub struct PlayerProcessor;
 impl Processor for PlayerProcessor {
     fn get_handlers(input: &mut HandlerInput) -> ProcessorResult {
         let handlers: ProcessorResult = match input.opcode {
             Opcode::CMSG_CHAR_ENUM => {
-                vec![
-                    Box::new(char_enum::Handler),
-                ]
-            },
+                vec![Box::new(char_enum::Handler)]
+            }
             Opcode::CMSG_PLAYER_LOGIN => {
                 vec![
                     Box::new(login_verify_world::Handler),
@@ -37,8 +35,8 @@ impl Processor for PlayerProcessor {
                     Box::new(load_equipment_set::Handler),
                     Box::new(played_time::Handler),
                 ]
-            },
-            _ => vec![]
+            }
+            _ => vec![],
         };
 
         handlers

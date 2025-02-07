@@ -3,7 +3,6 @@ use serde::{Deserialize, Serialize};
 use tentacli_packet::WorldPacket;
 use tentacli_traits::types::opcodes::Opcode;
 
-use crate::primary::crypto::header_crypt::HeaderCrypt;
 use crate::primary::traits::packet_handler::PacketHandler;
 use crate::primary::types::{HandlerInput, HandlerOutput, HandlerResult};
 
@@ -12,7 +11,7 @@ use crate::primary::types::{HandlerInput, HandlerOutput, HandlerResult};
 struct Income {
     build: u32,
     unknown: u32,
-    account : String,
+    account: String,
     unknown2: u32,
     client_seed: [u8; 4],
     unknown3: u64,
@@ -25,7 +24,7 @@ struct Income {
 
 // Opcode::SMSG_AUTH_RESPONSE
 #[derive(WorldPacket, Serialize, Deserialize, Debug)]
-struct Outcome {
+struct Outgoing {
     status: u8,
     billing_time_remaining: u32,
     billing_plan_flags: u8,
@@ -38,15 +37,18 @@ pub struct Handler;
 impl PacketHandler for Handler {
     async fn handle(&mut self, input: &mut HandlerInput) -> HandlerResult {
         let mut response = Vec::new();
-        let (Income { client_seed, .. }, _) = Income::from_binary(&input.data)?;
+        let (Income { .. }, _) = Income::from_binary(&input.data)?;
 
-        response.push(HandlerOutput::Data(Outcome {
-            status: 0x0C,
-            billing_time_remaining: 0,
-            billing_plan_flags: 0,
-            billing_time_rested: 0,
-            expansion: 2,
-        }.to_binary_with_server_opcode(Opcode::SMSG_AUTH_RESPONSE)?));
+        response.push(HandlerOutput::Data(
+            Outgoing {
+                status: 0x0C,
+                billing_time_remaining: 0,
+                billing_plan_flags: 0,
+                billing_time_rested: 0,
+                expansion: 2,
+            }
+            .to_binary_with_server_opcode(Opcode::SMSG_AUTH_RESPONSE)?,
+        ));
 
         println!("[SEND] Opcode::SMSG_AUTH_RESPONSE");
 

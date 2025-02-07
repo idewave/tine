@@ -1,10 +1,10 @@
-use anyhow::{Result as AnyResult};
+use anyhow::Result as AnyResult;
 use serde::{Deserialize, Serialize};
 use tentacli_packet::WorldPacket;
 use tentacli_traits::types::opcodes::Opcode;
 
 #[derive(WorldPacket, Serialize, Deserialize, Debug, Default)]
-struct Outcome {
+struct Outgoing {
     unknown: u32,
     server_seed: u32,
     seed: [u8; 32],
@@ -13,11 +13,12 @@ struct Outcome {
 pub async fn handle() -> AnyResult<Vec<u8>> {
     let server_seed = rand::random();
 
-    let packet = Outcome {
+    let packet = Outgoing {
         unknown: 0,
         server_seed,
         seed: rand::random(),
-    }.to_binary_with_server_opcode(Opcode::SMSG_AUTH_CHALLENGE)?;
+    }
+    .to_binary_with_server_opcode(Opcode::SMSG_AUTH_CHALLENGE)?;
 
     println!("[SEND] Opcode::SMSG_AUTH_CHALLENGE");
 

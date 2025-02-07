@@ -18,7 +18,7 @@ pub struct LoginProofIncome {
 }
 
 #[derive(LoginPacket, Serialize, Deserialize, Debug)]
-struct Outcome {
+struct Outgoing {
     error: u8,
     server_proof: [u8; 20],
     account_flags: u32,
@@ -64,7 +64,7 @@ impl PacketHandler for Handler {
 
             response.push(HandlerOutput::SessionKey(session_key));
             response.push(HandlerOutput::Data(
-                Outcome {
+                Outgoing {
                     error: 0,
                     server_proof,
                     account_flags: AccountFlags::ACCOUNT_FLAG_PROPASS,

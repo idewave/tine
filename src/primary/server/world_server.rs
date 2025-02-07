@@ -1,21 +1,22 @@
-use anyhow::{Result as AnyResult};
 use std::io::Cursor;
-use std::sync::{Arc};
+use std::sync::Arc;
+
+use anyhow::Result as AnyResult;
 use async_trait::async_trait;
 use byteorder::{BigEndian, LittleEndian, ReadBytesExt};
 use tokio::io::{AsyncReadExt, AsyncWriteExt};
 use tokio::net::TcpStream;
 use tokio::sync::Mutex;
 
-use crate::primary::server::auth::auth_challenge;
 use crate::primary::server::{SERVER_HOST, WORLD_PORT};
+use crate::primary::server::auth::auth_challenge;
 use crate::primary::server::movement::MovementProcessor;
 use crate::primary::server::player::PlayerProcessor;
 use crate::primary::server::realm::RealmProcessor;
 use crate::primary::server::types::Packet;
 use crate::primary::traits::processor::Processor;
 use crate::primary::traits::server::{Connection, RunOptions, Server};
-use crate::primary::types::{ProcessorFunction};
+use crate::primary::types::ProcessorFunction;
 
 const HEADER_SIZE: usize = 6;
 const OPCODE_SIZE: usize = 4;
@@ -29,7 +30,7 @@ impl Server for WorldServer {
 
     async fn read_packet(
         socket: &mut TcpStream,
-        connection: Arc<Mutex<Connection>>
+        connection: Arc<Mutex<Connection>>,
     ) -> AnyResult<Packet> {
         let mut buffer = vec![0u8; HEADER_SIZE];
         socket.read_exact(&mut buffer).await?;
@@ -52,7 +53,7 @@ impl Server for WorldServer {
         Ok(Packet { opcode, data: body })
     }
 
-    async fn init(&mut self, socket: &mut TcpStream, options: Arc<RunOptions>) {
+    async fn init(&mut self, socket: &mut TcpStream, _: Arc<RunOptions>) {
         let packet = auth_challenge().await.unwrap();
         socket.write_all(&packet).await.unwrap();
     }
