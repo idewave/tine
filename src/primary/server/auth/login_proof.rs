@@ -54,7 +54,7 @@ impl PacketHandler for Handler {
                 let result = hasher
                     .chain(client_ephemeral)
                     .chain(server_proof)
-                    .chain(session_key.to_vec())
+                    .chain(&session_key)
                     .finalize();
 
                 let mut hashed_proof = [0u8; 20];
