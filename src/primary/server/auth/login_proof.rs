@@ -5,12 +5,10 @@ use tentacli_packet::LoginPacket;
 use tentacli_traits::types::opcodes::Opcode;
 
 use crate::primary::server::auth::types::AccountFlags;
-
 use crate::primary::traits::packet_handler::PacketHandler;
 use crate::primary::types::{HandlerInput, HandlerOutput, HandlerResult};
 
 #[derive(LoginPacket, Serialize, Deserialize, Debug)]
-#[options(with_async)]
 pub struct LoginProofIncome {
     client_ephemeral: [u8; 32],
     client_proof: [u8; 20],
@@ -33,9 +31,14 @@ pub struct Handler;
 impl PacketHandler for Handler {
     async fn handle(&mut self, input: &mut HandlerInput) -> HandlerResult {
         let mut response = Vec::new();
-        let (LoginProofIncome {
-            client_ephemeral, client_proof, ..
-        }, _) = LoginProofIncome::from_binary(&input.data)?;
+        let (
+            LoginProofIncome {
+                client_ephemeral,
+                client_proof,
+                ..
+            },
+            _,
+        ) = LoginProofIncome::from_binary(&input.data)?;
 
         let mut srp = input.srp.lock().await;
         srp.calculate_session_key::<Sha1>(&client_ephemeral);
@@ -60,13 +63,16 @@ impl PacketHandler for Handler {
             };
 
             response.push(HandlerOutput::SessionKey(session_key));
-            response.push(HandlerOutput::Data(Outcome {
-                error: 0,
-                server_proof,
-                account_flags: AccountFlags::ACCOUNT_FLAG_PROPASS,
-                survey_id: 0,
-                unknown_flags: 0,
-            }.to_binary_with_opcode(Opcode::LOGIN_PROOF)?));
+            response.push(HandlerOutput::Data(
+                Outcome {
+                    error: 0,
+                    server_proof,
+                    account_flags: AccountFlags::ACCOUNT_FLAG_PROPASS,
+                    survey_id: 0,
+                    unknown_flags: 0,
+                }
+                .to_binary_with_opcode(Opcode::LOGIN_PROOF)?,
+            ));
         }
 
         Ok(response)

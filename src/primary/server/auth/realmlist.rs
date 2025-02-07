@@ -1,7 +1,7 @@
 use async_trait::async_trait;
 use rand::Rng;
 use serde::{Deserialize, Serialize};
-use tentacli_packet::{Segment, LoginPacket};
+use tentacli_packet::{LoginPacket, Segment};
 use tentacli_traits::types::opcodes::Opcode;
 use tentacli_traits::types::realm::Realm;
 
@@ -11,9 +11,8 @@ use crate::primary::types::{HandlerInput, HandlerOutput, HandlerResult};
 use crate::primary::types::fields::realms::Realms;
 
 #[derive(LoginPacket, Serialize, Deserialize, Debug)]
-#[options(with_async)]
 pub struct RealmlistIncome {
-    skip: u32
+    skip: u32,
 }
 
 #[derive(LoginPacket, Serialize, Deserialize, Debug, Default)]
@@ -39,16 +38,23 @@ impl PacketHandler for Handler {
                 realms: Realms,
             }
 
-            RealmsSerializer { realms: Realms(realms.clone()) }.to_binary().unwrap()
+            RealmsSerializer {
+                realms: Realms(realms.clone()),
+            }
+            .to_binary()
+            .unwrap()
         };
 
-        response.push(HandlerOutput::Data(Outcome {
-            size: (realms_bytes.len() + 8) as u16,
-            unknown: 0,
-            realms_count,
-            realms: realms_bytes,
-            unknown2: 0x0010,
-        }.to_binary_with_opcode(Opcode::REALM_LIST)?));
+        response.push(HandlerOutput::Data(
+            Outcome {
+                size: (realms_bytes.len() + 8) as u16,
+                unknown: 0,
+                realms_count,
+                realms: realms_bytes,
+                unknown2: 0x0010,
+            }
+            .to_binary_with_opcode(Opcode::REALM_LIST)?,
+        ));
 
         Ok(response)
     }

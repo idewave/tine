@@ -22,7 +22,7 @@ impl Processor for RealmProcessor {
                     Box::new(addon_info::Handler),
                     Box::new(client_cache_version::Handler),
                     Box::new(tutorial_flags::Handler),
-                    Box::new(auth_response::Handler),
+                    // Box::new(auth_response::Handler),
                 ]
             },
             Opcode::CMSG_READY_FOR_ACCOUNT_DATA_TIMES => {

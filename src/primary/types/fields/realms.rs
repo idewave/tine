@@ -2,7 +2,7 @@ use anyhow::{Result as AnyResult};
 use std::io::BufRead;
 use serde::{Deserialize, Deserializer, Serialize, Serializer};
 use std::fmt::{Debug};
-use tentacli_traits::{BinaryConverter, FieldError};
+use tentacli_traits::{BinaryConverter};
 use tentacli_traits::types::realm::Realm;
 
 

@@ -35,8 +35,6 @@ impl Server for LoginServer {
             _ => vec![],
         };
 
-        println!("OPCODE: {} has been read", opcode);
-
         Ok(Packet { opcode: opcode as u32, data })
     }
 

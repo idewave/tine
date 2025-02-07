@@ -1,5 +1,5 @@
 use async_trait::async_trait;
-use serde::{Deserialize, Serialize};
+use serde::{Serialize};
 use tentacli_packet::WorldPacket;
 use tentacli_traits::types::custom_fields::PackedGuid;
 use tentacli_traits::types::movement::MovementInfo;

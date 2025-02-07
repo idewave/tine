@@ -1,21 +1,17 @@
-use std::io::BufRead;
 use async_trait::async_trait;
 use serde::{Deserialize, Serialize};
 use sha1::Sha1;
 use tentacli_packet::LoginPacket;
 use tentacli_traits::types::opcodes::Opcode;
-use tokio::io::{AsyncBufRead, AsyncReadExt};
 
 use crate::primary::traits::packet_handler::PacketHandler;
 use crate::primary::types::{HandlerInput, HandlerOutput, HandlerResult};
 
 const VERSION_CHALLENGE: [u8; 16] = [
-    0xBA, 0xA3, 0x1E, 0x99, 0xA0, 0x0B, 0x21, 0x57,
-    0xFC, 0x37, 0x3F, 0xB3, 0x69, 0xCD, 0xD2, 0xF1
+    0xBA, 0xA3, 0x1E, 0x99, 0xA0, 0x0B, 0x21, 0x57, 0xFC, 0x37, 0x3F, 0xB3, 0x69, 0xCD, 0xD2, 0xF1,
 ];
 
 #[derive(LoginPacket, Serialize, Deserialize, Debug)]
-#[options(with_async)]
 pub struct LoginChallengeIncome {
     unknown: u8,
     packet_size: u16,
@@ -53,7 +49,8 @@ impl PacketHandler for Handler {
     async fn handle(&mut self, input: &mut HandlerInput) -> HandlerResult {
         let mut response = Vec::new();
 
-        let (LoginChallengeIncome { account, .. }, _) = LoginChallengeIncome::from_binary(&input.data)?;
+        let (LoginChallengeIncome { account, .. }, _) =
+            LoginChallengeIncome::from_binary(&input.data)?;
         let mut srp = input.srp.lock().await;
         srp.set_account(account);
         srp.generate_verifier::<Sha1>();
@@ -63,18 +60,21 @@ impl PacketHandler for Handler {
         let (_, generator) = srp.generator.to_bytes_le();
         let (_, modulus) = srp.modulus.to_bytes_le();
 
-        response.push(HandlerOutput::Data(Outcome {
-            unknown: 0,
-            code: 0,
-            server_ephemeral: server_ephemeral.into(),
-            g_len: 1,
-            g: generator.into(),
-            n_len: 32,
-            n: modulus.into(),
-            salt: srp.salt,
-            version_challenge: VERSION_CHALLENGE,
-            unknown2: 0,
-        }.to_binary_with_opcode(Opcode::LOGIN_CHALLENGE)?));
+        response.push(HandlerOutput::Data(
+            Outcome {
+                unknown: 0,
+                code: 0,
+                server_ephemeral: server_ephemeral.into(),
+                g_len: 1,
+                g: generator.into(),
+                n_len: 32,
+                n: modulus.into(),
+                salt: srp.salt,
+                version_challenge: VERSION_CHALLENGE,
+                unknown2: 0,
+            }
+            .to_binary_with_opcode(Opcode::LOGIN_CHALLENGE)?,
+        ));
 
         Ok(response)
     }
