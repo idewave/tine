@@ -413,7 +413,7 @@ impl PacketHandler for Handler {
 
         response.push(HandlerOutput::Data(packet));
 
-        println!("SEND Opcode::SMSG_UPDATE_OBJECT");
+        crate::debug!("SEND Opcode::SMSG_UPDATE_OBJECT");
 
         Ok(response)
     }

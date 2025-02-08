@@ -20,7 +20,7 @@ pub struct Handler;
 #[async_trait]
 impl PacketHandler for Handler {
     async fn handle(&mut self, _: &mut HandlerInput) -> HandlerResult {
-        println!("SENT SMSG_ACCOUNT_DATA_TIMES");
+        crate::debug!("SENT SMSG_ACCOUNT_DATA_TIMES");
 
         Ok(vec![HandlerOutput::Data(
             Outgoing {

@@ -32,7 +32,7 @@ pub trait Server: Send {
         let (shutdown_tx, mut shutdown_rx) = mpsc::channel::<()>(1);
 
         let listener = TcpListener::bind(format!("{}:{}", Self::host(), Self::port())).await?;
-        println!(
+        crate::debug!(
             "[{}] is started on port {}",
             Self::server_name(),
             Self::port().to_string()
@@ -46,7 +46,7 @@ pub trait Server: Send {
                             let peer_addr = socket.peer_addr().unwrap();
                             {
                                 let message = format!("Client connected: {:?}", peer_addr);
-                                println!("{}", message.yellow());
+                                crate::debug!("{}", message.yellow());
                             }
 
                             let shutdown_tx = shutdown_tx.clone();
@@ -57,7 +57,7 @@ pub trait Server: Send {
 
                             tokio::spawn(async move {
                                 if let Err(err) = Self::handle_connection(socket, options).await {
-                                    eprintln!(
+                                    crate::debug!(
                                         "[{}]: Error handling connection: {}",
                                         Self::server_name(),
                                         err
@@ -68,7 +68,7 @@ pub trait Server: Send {
                             });
                         },
                         Err(err) => {
-                            eprintln!("Error accepting connection: {}", err);
+                            crate::debug!("Error accepting connection: {}", err);
                         }
                     }
                 },
@@ -93,7 +93,7 @@ pub trait Server: Send {
             match Self::read_packet(&mut socket, connection.clone()).await {
                 Ok(packet) => {
                     let Packet { data, opcode } = packet;
-                    println!("RECEIVED: {:?}", Opcode::get_opcode_name(opcode));
+                    crate::debug!("RECEIVED: {:?}", Opcode::get_opcode_name(opcode));
 
                     let mut input = HandlerInput {
                         data,
@@ -134,13 +134,13 @@ pub trait Server: Send {
                                 }
                             }
                             Err(err) => {
-                                println!("[ERROR]: {}", err.to_string().red())
+                                crate::debug!("[ERROR]: {}", err.to_string().red())
                             }
                         };
                     }
                 }
                 Err(err) => {
-                    println!("Error on packet read: {:?}", err.to_string());
+                    crate::debug!("Error on packet read: {:?}", err.to_string());
                     break;
                 }
             }

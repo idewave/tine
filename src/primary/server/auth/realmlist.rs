@@ -1,5 +1,6 @@
 use async_trait::async_trait;
-use rand::Rng;
+use rand::{random_range, Rng};
+use rand::distr::Alphanumeric;
 use serde::{Deserialize, Serialize};
 use tentacli_packet::{LoginPacket, Segment};
 use tentacli_traits::types::opcodes::Opcode;
@@ -7,8 +8,8 @@ use tentacli_traits::types::realm::Realm;
 
 use crate::primary::server::WORLD_PORT;
 use crate::primary::traits::packet_handler::PacketHandler;
-use crate::primary::types::fields::realms::Realms;
 use crate::primary::types::{HandlerInput, HandlerOutput, HandlerResult};
+use crate::primary::types::fields::realms::Realms;
 
 #[derive(LoginPacket, Serialize, Deserialize, Debug)]
 pub struct RealmlistIncoming {
@@ -61,8 +62,8 @@ impl Handler {
     fn generate_realm() -> Realm {
         let mut realm = Realm::default();
 
-        let name: String = rand::thread_rng()
-            .sample_iter(rand::distributions::Alphanumeric)
+        let name: String = rand::rng()
+            .sample_iter(Alphanumeric)
             .take(10)
             .map(char::from)
             .collect();
@@ -73,14 +74,13 @@ impl Handler {
         realm.name = name;
         realm.address = format!("127.0.0.1:{}", WORLD_PORT);
         realm.timezone = 1;
-        realm.server_id = rand::thread_rng().gen_range(0..=100);
+        realm.server_id = random_range(0..=100);
 
         realm
     }
 
     fn generate_unique_realms() -> Vec<Realm> {
-        let mut rng = rand::thread_rng();
-        let random_count: usize = rng.gen_range(1..=10);
+        let random_count: usize = random_range(1..=10);
 
         let mut realms = Vec::new();
         let mut generated_names = std::collections::HashSet::new();

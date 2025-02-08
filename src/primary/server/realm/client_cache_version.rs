@@ -15,7 +15,7 @@ pub struct Handler;
 #[async_trait]
 impl PacketHandler for Handler {
     async fn handle(&mut self, _: &mut HandlerInput) -> HandlerResult {
-        println!("[SEND] Opcode::SMSG_CLIENTCACHE_VERSION");
+        crate::debug!("[SEND] Opcode::SMSG_CLIENTCACHE_VERSION");
 
         Ok(vec![HandlerOutput::Data(
             Outgoing { version: 1 }

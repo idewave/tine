@@ -15,7 +15,7 @@ pub struct Handler;
 #[async_trait]
 impl PacketHandler for Handler {
     async fn handle(&mut self, _: &mut HandlerInput) -> HandlerResult {
-        println!("SEND Opcode::SMSG_LOAD_EQUIPMENT_SET");
+        crate::debug!("SEND Opcode::SMSG_LOAD_EQUIPMENT_SET");
 
         Ok(vec![HandlerOutput::Data(
             Outgoing { count: 0 }.to_binary_with_server_opcode(Opcode::SMSG_LOAD_EQUIPMENT_SET)?,

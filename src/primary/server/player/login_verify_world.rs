@@ -20,7 +20,7 @@ pub struct Handler;
 #[async_trait]
 impl PacketHandler for Handler {
     async fn handle(&mut self, _: &mut HandlerInput) -> HandlerResult {
-        println!("SEND Opcode::SMSG_LOGIN_VERIFY_WORLD");
+        crate::debug!("SEND Opcode::SMSG_LOGIN_VERIFY_WORLD");
 
         Ok(vec![HandlerOutput::Data(
             Outgoing {

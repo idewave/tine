@@ -2,6 +2,11 @@
 name = "tine"
 version = "0.1.0"
 edition = "2021"
+authors = ["Sergio Ivanuzzo <sergio.ivanuzzo@gmail.com>"]
+description = "TINE IS NOT EMULATOR, it is just a tiny wow server for v3.3.5a (currently only this version)"
+readme = "README.md"
+keywords = ["idewave", "wow-server"]
+license-file = "LICENSE"
 
 # See more keys and their definitions at https://doc.rust-lang.org/cargo/reference/manifest.html
 
@@ -11,12 +16,12 @@ arc4 = "0.1.0"
 async-trait = "0.1.77"
 bitflags = "2.4.2"
 byteorder = "1.4.3"
-colored = "2.1.0"
+colored = "3.0.0"
 flate2 = "1.0.24"
 futures = "0.3.21"
 hmac-sha = "0.6.1"
 num-bigint = "0.4.3"
-rand = "0.8.5"
+rand = "0.9.0"
 serde = { version = "1.0.197", features = ["derive"] }
 serde_json = "1.0.114"
 sha-1 = "0.9.8"
@@ -27,3 +32,7 @@ tentacli-traits = "9.2.1"
 tentacli-utils = "2.1.0"
 tokio = { version = "1", features = ["sync", "net", "io-util", "macros", "time", "rt-multi-thread"] }
 num-traits = "0.2.18"
+
+[features]
+# use this feature to turn on println
+debug = []

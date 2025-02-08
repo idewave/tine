@@ -26,7 +26,7 @@ impl PacketHandler for Handler {
             _,
         ) = Incoming::from_binary(&input.data)?;
 
-        println!("{:?}", Opcode::get_opcode_name(input.opcode));
+        crate::debug!("{:?}", Opcode::get_opcode_name(input.opcode));
 
         Ok(vec![HandlerOutput::Data(
             Incoming {

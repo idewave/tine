@@ -18,7 +18,7 @@ pub struct Handler;
 #[async_trait]
 impl PacketHandler for Handler {
     async fn handle(&mut self, _: &mut HandlerInput) -> HandlerResult {
-        println!("SEND Opcode::SMSG_QUERY_TIME_RESPONSE");
+        crate::debug!("SEND Opcode::SMSG_QUERY_TIME_RESPONSE");
 
         let current_time = SystemTime::now()
             .duration_since(UNIX_EPOCH)

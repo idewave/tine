@@ -15,7 +15,7 @@ pub struct Handler;
 #[async_trait]
 impl PacketHandler for Handler {
     async fn handle(&mut self, _: &mut HandlerInput) -> HandlerResult {
-        println!("[SEND] Opcode::SMSG_ADDON_INFO");
+        crate::debug!("[SEND] Opcode::SMSG_ADDON_INFO");
 
         Ok(vec![HandlerOutput::Data(
             Outgoing {

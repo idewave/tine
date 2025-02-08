@@ -19,7 +19,7 @@ pub struct Handler;
 #[async_trait]
 impl PacketHandler for Handler {
     async fn handle(&mut self, _: &mut HandlerInput) -> HandlerResult {
-        println!("SEND Opcode::SMSG_INIT_WORLD_STATES");
+        crate::debug!("SEND Opcode::SMSG_INIT_WORLD_STATES");
 
         Ok(vec![HandlerOutput::Data(
             Outgoing {

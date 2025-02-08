@@ -15,7 +15,7 @@ pub struct Handler;
 #[async_trait]
 impl PacketHandler for Handler {
     async fn handle(&mut self, _: &mut HandlerInput) -> HandlerResult {
-        println!("SEND Opcode::SMSG_TIME_SYNC_REQ");
+        crate::debug!("SEND Opcode::SMSG_TIME_SYNC_REQ");
 
         Ok(vec![HandlerOutput::Data(
             Outgoing { unknown: 0 }.to_binary_with_server_opcode(Opcode::SMSG_TIME_SYNC_REQ)?,
