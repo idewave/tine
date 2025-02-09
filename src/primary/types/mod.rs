@@ -26,7 +26,7 @@ pub struct HandlerInput {
 #[derive(Debug, Clone)]
 pub enum HandlerOutput {
     // data transfer
-    Data(Vec<u8>),
+    Data(u16, Vec<u8>),
     SessionKey(Vec<u8>),
 }
 

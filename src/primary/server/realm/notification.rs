@@ -15,9 +15,8 @@ pub struct Handler;
 #[async_trait]
 impl PacketHandler for Handler {
     async fn handle(&mut self, _: &mut HandlerInput) -> HandlerResult {
-        crate::debug!("SEND Opcode::SMSG_NOTIFICATION");
-
         Ok(vec![HandlerOutput::Data(
+            Opcode::SMSG_NOTIFICATION,
             Outgoing {
                 text: String::from("TINE is in development...\0"),
             }

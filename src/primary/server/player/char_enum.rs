@@ -41,9 +41,8 @@ pub struct Handler;
 #[async_trait]
 impl PacketHandler for Handler {
     async fn handle(&mut self, _: &mut HandlerInput) -> HandlerResult {
-        crate::debug!("SEND Opcode::SMSG_CHAR_ENUM");
-
         Ok(vec![HandlerOutput::Data(
+            Opcode::SMSG_CHAR_ENUM,
             Outgoing {
                 characters_count: 1,
                 guid: CurrentPlayer::GUID,

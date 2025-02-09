@@ -17,9 +17,8 @@ pub struct Handler;
 #[async_trait]
 impl PacketHandler for Handler {
     async fn handle(&mut self, _: &mut HandlerInput) -> HandlerResult {
-        crate::debug!("SEND Opcode::SMSG_LOGIN_SETTIMESPEED");
-
         Ok(vec![HandlerOutput::Data(
+            Opcode::SMSG_LOGIN_SETTIMESPEED,
             Outgoing {
                 uptime: 406030890,
                 game_speed: 0.01666667,

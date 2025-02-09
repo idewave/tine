@@ -19,9 +19,8 @@ pub struct Handler;
 #[async_trait]
 impl PacketHandler for Handler {
     async fn handle(&mut self, _: &mut HandlerInput) -> HandlerResult {
-        crate::debug!("SEND Opcode::SMSG_INITIAL_SPELLS");
-
         Ok(vec![HandlerOutput::Data(
+            Opcode::SMSG_INITIAL_SPELLS,
             Outgoing {
                 unknown: 0,
                 spells_count: 0,

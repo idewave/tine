@@ -1,35 +1,31 @@
-use std::time::{SystemTime, UNIX_EPOCH};
-
 use async_trait::async_trait;
 use serde::{Deserialize, Serialize};
 use tentacli_packet::WorldPacket;
 use tentacli_traits::types::opcodes::Opcode;
+use tentacli_traits::types::world::WeatherState;
 
 use crate::primary::traits::PacketHandler;
 use crate::primary::types::{HandlerInput, HandlerOutput, HandlerResult};
 
 #[derive(WorldPacket, Serialize, Deserialize, Debug)]
 struct Outgoing {
-    timestamp: u32,
+    state: u32,
+    grade: f32,
     unknown: u8,
-    cache_mask: u32,
-    data: [u8; 12],
 }
 
 pub struct Handler;
 #[async_trait]
 impl PacketHandler for Handler {
     async fn handle(&mut self, _: &mut HandlerInput) -> HandlerResult {
-        crate::debug!("SENT SMSG_ACCOUNT_DATA_TIMES");
-
         Ok(vec![HandlerOutput::Data(
+            Opcode::SMSG_WEATHER,
             Outgoing {
-                timestamp: SystemTime::now().duration_since(UNIX_EPOCH)?.as_secs() as u32,
-                unknown: 1,
-                cache_mask: 0x15,
-                data: [0u8; 12],
+                state: WeatherState::MEDIUM_RAIN,
+                grade: 0.8,
+                unknown: 0,
             }
-            .to_binary_with_server_opcode(Opcode::SMSG_ACCOUNT_DATA_TIMES)?,
+            .to_binary_with_server_opcode(Opcode::SMSG_WEATHER)?,
         )])
     }
 }

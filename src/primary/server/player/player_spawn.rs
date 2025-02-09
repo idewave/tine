@@ -411,9 +411,7 @@ impl PacketHandler for Handler {
         .to_binary_with_server_opcode(Opcode::SMSG_UPDATE_OBJECT)
         .unwrap();
 
-        response.push(HandlerOutput::Data(packet));
-
-        crate::debug!("SEND Opcode::SMSG_UPDATE_OBJECT");
+        response.push(HandlerOutput::Data(Opcode::SMSG_UPDATE_OBJECT, packet));
 
         Ok(response)
     }

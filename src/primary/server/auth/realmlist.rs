@@ -40,6 +40,7 @@ impl PacketHandler for Handler {
         };
 
         Ok(vec![HandlerOutput::Data(
+            Opcode::REALM_LIST as u16,
             Outgoing {
                 size: (realms_bytes.len() + 8) as u16,
                 unknown: 0,

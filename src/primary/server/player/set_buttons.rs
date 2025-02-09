@@ -16,9 +16,8 @@ pub struct Handler;
 #[async_trait]
 impl PacketHandler for Handler {
     async fn handle(&mut self, _: &mut HandlerInput) -> HandlerResult {
-        crate::debug!("SEND Opcode::SMSG_ACTION_BUTTONS");
-
         Ok(vec![HandlerOutput::Data(
+            Opcode::SMSG_ACTION_BUTTONS,
             Outgoing {
                 unknown: 1,
                 buttons: vec![

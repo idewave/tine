@@ -4,7 +4,7 @@ use anyhow::Result as AnyResult;
 use async_trait::async_trait;
 use tentacli_traits::types::opcodes::Opcode;
 use tokio::io::{AsyncReadExt, BufReader};
-use tokio::net::TcpStream;
+use tokio::net::tcp::OwnedReadHalf;
 use tokio::sync::Mutex;
 
 use crate::primary::server::auth::{
@@ -25,7 +25,10 @@ impl LoginServer {
 
 #[async_trait]
 impl BaseServer for LoginServer {
-    async fn read_packet(socket: &mut TcpStream, _: Arc<Mutex<Connection>>) -> AnyResult<Packet> {
+    async fn read_packet(
+        socket: &mut OwnedReadHalf,
+        _: Arc<Mutex<Connection>>,
+    ) -> AnyResult<Packet> {
         let opcode = socket.read_u8().await?;
         let mut reader = BufReader::new(socket);
 

@@ -38,9 +38,8 @@ impl PacketHandler for Handler {
     async fn handle(&mut self, input: &mut HandlerInput) -> HandlerResult {
         let (Incoming { .. }, _) = Incoming::from_binary(&input.data)?;
 
-        crate::debug!("[SEND] Opcode::SMSG_AUTH_RESPONSE");
-
         Ok(vec![HandlerOutput::Data(
+            Opcode::SMSG_AUTH_RESPONSE,
             Outgoing {
                 status: 0x0C,
                 billing_time_remaining: 0,

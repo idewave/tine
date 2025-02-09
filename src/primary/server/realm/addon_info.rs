@@ -15,9 +15,8 @@ pub struct Handler;
 #[async_trait]
 impl PacketHandler for Handler {
     async fn handle(&mut self, _: &mut HandlerInput) -> HandlerResult {
-        crate::debug!("[SEND] Opcode::SMSG_ADDON_INFO");
-
         Ok(vec![HandlerOutput::Data(
+            Opcode::SMSG_ADDON_INFO,
             Outgoing {
                 addons: vec![
                     0x02, 0x01, 0x01, 0xC3, 0x5B, 0x50, 0x84, 0xB9, 0x3E, 0x32, 0x42, 0x8C, 0xD0,

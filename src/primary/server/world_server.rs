@@ -5,6 +5,7 @@ use anyhow::Result as AnyResult;
 use async_trait::async_trait;
 use byteorder::{BigEndian, LittleEndian, ReadBytesExt};
 use tokio::io::{AsyncReadExt, AsyncWriteExt};
+use tokio::net::tcp::OwnedReadHalf;
 use tokio::net::TcpStream;
 use tokio::sync::Mutex;
 
@@ -30,7 +31,7 @@ impl WorldServer {
 #[async_trait]
 impl BaseServer for WorldServer {
     async fn read_packet(
-        socket: &mut TcpStream,
+        socket: &mut OwnedReadHalf,
         connection: Arc<Mutex<Connection>>,
     ) -> AnyResult<Packet> {
         let mut buffer = vec![0u8; HEADER_SIZE];

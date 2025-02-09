@@ -18,14 +18,13 @@ pub struct Handler;
 #[async_trait]
 impl PacketHandler for Handler {
     async fn handle(&mut self, _: &mut HandlerInput) -> HandlerResult {
-        crate::debug!("SEND Opcode::SMSG_QUERY_TIME_RESPONSE");
-
         let current_time = SystemTime::now()
             .duration_since(UNIX_EPOCH)
             .expect("Time went backwards")
             .as_secs();
 
         Ok(vec![HandlerOutput::Data(
+            Opcode::SMSG_QUERY_TIME_RESPONSE,
             Outgoing {
                 time: current_time as u32,
                 time2: current_time as u32,

@@ -3,7 +3,6 @@ use serde::Serialize;
 use tentacli_packet::WorldPacket;
 use tentacli_traits::types::custom_fields::PackedGuid;
 use tentacli_traits::types::movement::MovementInfo;
-use tentacli_traits::types::opcodes::Opcode;
 
 use crate::primary::traits::PacketHandler;
 use crate::primary::types::{HandlerInput, HandlerOutput, HandlerResult};
@@ -26,9 +25,8 @@ impl PacketHandler for Handler {
             _,
         ) = Incoming::from_binary(&input.data)?;
 
-        crate::debug!("{:?}", Opcode::get_opcode_name(input.opcode));
-
         Ok(vec![HandlerOutput::Data(
+            input.opcode as u16,
             Incoming {
                 packed_guid,
                 movement_info,

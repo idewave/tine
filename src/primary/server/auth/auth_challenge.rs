@@ -20,7 +20,5 @@ pub async fn handle() -> AnyResult<Vec<u8>> {
     }
     .to_binary_with_server_opcode(Opcode::SMSG_AUTH_CHALLENGE)?;
 
-    crate::debug!("[SEND] Opcode::SMSG_AUTH_CHALLENGE");
-
     Ok(packet)
 }

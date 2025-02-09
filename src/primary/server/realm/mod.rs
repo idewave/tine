@@ -3,7 +3,6 @@ use tentacli_traits::types::opcodes::Opcode;
 use crate::primary::traits::processor::Processor;
 use crate::primary::types::{HandlerInput, ProcessorResult};
 
-mod account_data_times;
 mod addon_info;
 mod auth_response;
 mod client_cache_version;
@@ -11,6 +10,7 @@ mod notification;
 mod set_encryption;
 mod set_time;
 mod set_ui_time;
+mod set_weather;
 mod tutorial_flags;
 
 pub struct RealmProcessor;
@@ -34,7 +34,10 @@ impl Processor for RealmProcessor {
                 vec![Box::new(set_time::Handler)]
             }
             Opcode::CMSG_PLAYER_LOGIN => {
-                vec![Box::new(notification::Handler)]
+                vec![
+                    Box::new(notification::Handler),
+                    Box::new(set_weather::Handler),
+                ]
             }
             _ => vec![],
         };

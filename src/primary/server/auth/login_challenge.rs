@@ -59,6 +59,7 @@ impl PacketHandler for Handler {
         let (_, modulus) = srp.modulus.to_bytes_le();
 
         Ok(vec![HandlerOutput::Data(
+            Opcode::LOGIN_CHALLENGE as u16,
             Outgoing {
                 unknown: 0,
                 code: 0,
