@@ -1,3 +1,11 @@
+//! TINE IS NOT EMULATOR, it is just a tiny WoW server (currently for version 3.3.5a only),
+//! implemented for testing. It contains only basic functionality, which probably will be extended in the future.
+//!
+//! The main objectives of the project are: it can be used for testing the sending and receiving of packets;
+//! it can replay packets received from external sources (e.g., it allows connecting a regular WoW client to tine,
+//! which is linked to tentacli, and observing the packets in real-time,
+//! effectively letting you see the world as tentacli does in the area it is spawned).
+
 use std::sync::Arc;
 
 use anyhow::Result as AnyResult;

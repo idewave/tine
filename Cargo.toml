@@ -7,6 +7,7 @@ description = "TINE IS NOT EMULATOR, it is just a tiny wow server for v3.3.5a (c
 readme = "README.md"
 keywords = ["idewave", "wow-server"]
 license-file = "LICENSE"
+repository = "https://github.com/idewave/tine"
 
 # See more keys and their definitions at https://doc.rust-lang.org/cargo/reference/manifest.html
 
