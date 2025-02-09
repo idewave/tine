@@ -39,8 +39,19 @@ pub trait BaseServer: Send {
         let (shutdown_tx, mut shutdown_rx) = mpsc::channel::<()>(1);
 
         let port = Self::port(options.clone());
+        let connection_message = format!("[{}] is started on port {}", Self::server_name(), port);
         let listener = TcpListener::bind(format!("127.0.0.1:{}", port)).await?;
-        crate::debug!("[{}] is started on port {}", Self::server_name(), port);
+        crate::debug!("{}", connection_message);
+
+        if options.sender.is_some() {
+            let sender = options.sender.clone().unwrap();
+            sender
+                .broadcast(ClientHandlerOutput::SuccessMessage(
+                    connection_message,
+                    None,
+                ))
+                .await?;
+        }
 
         loop {
             tokio::select! {
