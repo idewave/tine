@@ -2,6 +2,7 @@ use std::sync::Arc;
 use std::time::Duration;
 
 use anyhow::Result as AnyResult;
+use async_broadcast::Receiver as BroadcastReceiver;
 use async_trait::async_trait;
 use colored::Colorize;
 use tentacli_traits::types::opcodes::Opcode;
@@ -13,10 +14,16 @@ use tokio::time::sleep;
 use crate::primary::crypto::header_crypt::HeaderCrypt;
 use crate::primary::crypto::srp::Srp;
 use crate::primary::server::types::Packet;
-use crate::primary::types::{HandlerInput, HandlerOutput, ProcessorFunction, ProcessorResult};
+use crate::primary::types::{
+    HandlerInput, HandlerOutput, ProcessorFunction, ProcessorResult, ServerInfo,
+};
 
+#[derive(Default)]
 pub struct RunOptions {
     pub srp: Arc<Mutex<Srp>>,
+    pub receiver: Option<BroadcastReceiver<tentacli_traits::types::HandlerOutput>>,
+    pub login_port: u16,
+    pub world_port: u16,
 }
 
 #[derive(Default, Debug)]
@@ -25,18 +32,13 @@ pub struct Connection {
 }
 
 #[async_trait]
-pub trait Server: Send {
-    fn new() -> Self;
-
+pub trait BaseServer: Send {
     async fn run(&mut self, options: Arc<RunOptions>) -> AnyResult<()> {
         let (shutdown_tx, mut shutdown_rx) = mpsc::channel::<()>(1);
 
-        let listener = TcpListener::bind(format!("{}:{}", Self::host(), Self::port())).await?;
-        crate::debug!(
-            "[{}] is started on port {}",
-            Self::server_name(),
-            Self::port().to_string()
-        );
+        let port = Self::port(options.clone());
+        let listener = TcpListener::bind(format!("127.0.0.1:{}", port)).await?;
+        crate::debug!("[{}] is started on port {}", Self::server_name(), port);
 
         loop {
             tokio::select! {
@@ -53,7 +55,6 @@ pub trait Server: Send {
                             let options = options.clone();
 
                             self.init(&mut socket, options.clone()).await;
-                            // let connection: Option<Connection> = self.init_connection();
 
                             tokio::spawn(async move {
                                 if let Err(err) = Self::handle_connection(socket, options).await {
@@ -90,16 +91,28 @@ pub trait Server: Send {
         let connection = Arc::new(Mutex::new(Connection::default()));
 
         loop {
+            crate::debug!(
+                "{}'s PORT: {:?}",
+                Self::server_name(),
+                socket.local_addr().unwrap().port()
+            );
             match Self::read_packet(&mut socket, connection.clone()).await {
                 Ok(packet) => {
                     let Packet { data, opcode } = packet;
-                    crate::debug!("RECEIVED: {:?}", Opcode::get_opcode_name(opcode));
+                    crate::debug!(
+                        "[RECEIVED]: {}",
+                        Opcode::get_opcode_name(opcode).unwrap().blue()
+                    );
 
                     let mut input = HandlerInput {
                         data,
                         opcode,
                         srp: Arc::clone(&options.srp),
                         connection: Arc::clone(&connection),
+                        server_info: ServerInfo {
+                            login_port: options.login_port,
+                            world_port: options.world_port,
+                        },
                     };
 
                     let handler_list = Self::get_processors()
@@ -157,9 +170,7 @@ pub trait Server: Send {
 
     fn get_processors() -> Vec<ProcessorFunction>;
 
-    fn host<'a>() -> &'a str;
-
-    fn port() -> u16;
-
     fn server_name<'a>() -> &'a str;
+
+    fn port(options: Arc<RunOptions>) -> u16;
 }

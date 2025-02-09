@@ -7,23 +7,24 @@ use tokio::io::{AsyncReadExt, BufReader};
 use tokio::net::TcpStream;
 use tokio::sync::Mutex;
 
-use crate::primary::server::{LOGIN_PORT, SERVER_HOST};
 use crate::primary::server::auth::{
     AuthProcessor, LoginChallengeIncoming, LoginProofIncoming, RealmlistIncoming,
 };
 use crate::primary::server::types::Packet;
+use crate::primary::traits::base_server::{BaseServer, Connection};
 use crate::primary::traits::processor::Processor;
-use crate::primary::traits::server::{Connection, Server};
 use crate::primary::types::ProcessorFunction;
+use crate::RunOptions;
 
 pub struct LoginServer {}
-
-#[async_trait]
-impl Server for LoginServer {
-    fn new() -> Self {
+impl LoginServer {
+    pub fn new() -> Self {
         Self {}
     }
+}
 
+#[async_trait]
+impl BaseServer for LoginServer {
     async fn read_packet(socket: &mut TcpStream, _: Arc<Mutex<Connection>>) -> AnyResult<Packet> {
         let opcode = socket.read_u8().await?;
         let mut reader = BufReader::new(socket);
@@ -45,15 +46,11 @@ impl Server for LoginServer {
         vec![Box::new(AuthProcessor::get_handlers)]
     }
 
-    fn host<'a>() -> &'a str {
-        SERVER_HOST
-    }
-
-    fn port() -> u16 {
-        LOGIN_PORT
-    }
-
     fn server_name<'a>() -> &'a str {
         "Login Server"
+    }
+
+    fn port(options: Arc<RunOptions>) -> u16 {
+        options.login_port
     }
 }

@@ -8,25 +8,27 @@ use tokio::io::{AsyncReadExt, AsyncWriteExt};
 use tokio::net::TcpStream;
 use tokio::sync::Mutex;
 
-use crate::primary::server::{SERVER_HOST, WORLD_PORT};
 use crate::primary::server::auth::auth_challenge;
 use crate::primary::server::player::PlayerProcessor;
 use crate::primary::server::realm::RealmProcessor;
 use crate::primary::server::types::Packet;
+use crate::primary::traits::base_server::{BaseServer, Connection, RunOptions};
 use crate::primary::traits::processor::Processor;
-use crate::primary::traits::server::{Connection, RunOptions, Server};
 use crate::primary::types::ProcessorFunction;
 
 const HEADER_SIZE: usize = 6;
 const OPCODE_SIZE: usize = 4;
 
 pub struct WorldServer {}
-#[async_trait]
-impl Server for WorldServer {
-    fn new() -> Self {
+
+impl WorldServer {
+    pub fn new() -> Self {
         Self {}
     }
+}
 
+#[async_trait]
+impl BaseServer for WorldServer {
     async fn read_packet(
         socket: &mut TcpStream,
         connection: Arc<Mutex<Connection>>,
@@ -64,15 +66,11 @@ impl Server for WorldServer {
         ]
     }
 
-    fn host<'a>() -> &'a str {
-        SERVER_HOST
-    }
-
-    fn port() -> u16 {
-        WORLD_PORT
-    }
-
     fn server_name<'a>() -> &'a str {
         "World Server"
+    }
+
+    fn port(options: Arc<RunOptions>) -> u16 {
+        options.world_port
     }
 }

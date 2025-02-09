@@ -4,10 +4,14 @@ use anyhow::Result as AnyResult;
 use tokio::sync::Mutex;
 
 use crate::primary::crypto::srp::Srp;
+use crate::primary::traits::base_server::Connection;
 use crate::primary::traits::packet_handler::PacketHandler;
-use crate::primary::traits::server::Connection;
 
-pub mod fields;
+#[derive(Debug, Copy, Clone)]
+pub struct ServerInfo {
+    pub login_port: u16,
+    pub world_port: u16,
+}
 
 #[derive(Debug)]
 pub struct HandlerInput {
@@ -15,6 +19,7 @@ pub struct HandlerInput {
     pub opcode: u32,
     pub srp: Arc<Mutex<Srp>>,
     pub connection: Arc<Mutex<Connection>>,
+    pub server_info: ServerInfo,
 }
 
 #[allow(dead_code)]

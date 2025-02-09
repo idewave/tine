@@ -12,10 +12,6 @@ mod realm;
 pub mod types;
 mod world_server;
 
-const SERVER_HOST: &str = "127.0.0.1";
-const LOGIN_PORT: u16 = 3724;
-const WORLD_PORT: u16 = 8999;
-
 #[allow(dead_code)]
 type SessionKey = Vec<u8>;
 #[allow(dead_code)]
