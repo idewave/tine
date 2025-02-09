@@ -55,16 +55,14 @@ impl PacketHandler for Handler {
 
 impl Handler {
     fn generate_realm(port: u16) -> Realm {
-        let mut realm = Realm::default();
-
-        realm.icon = 1;
-        realm.lock = 0;
-        realm.flags = 1;
-        realm.name = String::from("TINE Aspect Server");
-        realm.address = format!("127.0.0.1:{}", port);
-        realm.timezone = 1;
-        realm.server_id = random_range(0..=100);
-
-        realm
+        Realm {
+            icon: 1,
+            flags: 1,
+            name: String::from("TINE Aspect Server"),
+            address: format!("127.0.0.1:{}", port),
+            timezone: 1,
+            server_id: random_range(0..=100),
+            ..Realm::default()
+        }
     }
 }

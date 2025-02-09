@@ -89,7 +89,7 @@ pub trait BaseServer: Send {
         connection: Arc<Mutex<Connection>>,
     ) -> AnyResult<Packet>;
 
-    async fn handle_connection(mut socket: TcpStream, options: Arc<RunOptions>) -> AnyResult<()> {
+    async fn handle_connection(socket: TcpStream, options: Arc<RunOptions>) -> AnyResult<()> {
         let connection = Arc::new(Mutex::new(Connection::default()));
         let output_receiver = options.receiver.clone();
         let output_sender = options.sender.clone();
@@ -106,12 +106,11 @@ pub trait BaseServer: Send {
                 loop {
                     let result = receiver.recv().await;
                     match result {
-                        Ok(output) => match output {
-                            ClientHandlerOutput::Data((opcode, packet, _)) => {
+                        Ok(output) => {
+                            if let ClientHandlerOutput::Data((opcode, packet, _)) = output {
                                 packet_sender.send((opcode as u16, packet)).await.unwrap();
                             }
-                            _ => {}
-                        },
+                        }
                         Err(err) => {
                             sender
                                 .broadcast(ClientHandlerOutput::ErrorMessage(
@@ -206,8 +205,6 @@ pub trait BaseServer: Send {
                 tx.write_all(&packet).await.unwrap();
             }
         }
-
-        Ok(())
     }
 
     async fn init(&mut self, _socket: &mut TcpStream, _options: Arc<RunOptions>) {
