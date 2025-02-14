@@ -1,6 +1,6 @@
 [package]
 name = "tine"
-version = "0.1.0"
+version = "1.0.0"
 edition = "2021"
 authors = ["Sergio Ivanuzzo <sergio.ivanuzzo@gmail.com>"]
 description = "TINE IS NOT EMULATOR, it is just a tiny wow server for v3.3.5a (currently only this version)"
@@ -8,13 +8,13 @@ readme = "README.md"
 keywords = ["idewave", "wow-server"]
 license-file = "LICENSE"
 repository = "https://github.com/idewave/tine"
+publish = false
 
 # See more keys and their definitions at https://doc.rust-lang.org/cargo/reference/manifest.html
 
 [dependencies]
 anyhow = "1.0"
 arc4 = "0.1.0"
-async-broadcast = "0.7.1"
 async-trait = "0.1.77"
 bitflags = "2.4.2"
 byteorder = "1.4.3"
@@ -33,7 +33,7 @@ tentacli-formatters = "0.1.0"
 tentacli-packet = "7.0.0"
 tentacli-traits = "9.2.1"
 tentacli-utils = "2.1.0"
-tokio = { version = "1", features = ["sync", "net", "io-util", "macros", "time", "rt-multi-thread"] }
+tokio = { version = "1", features = ["sync", "net", "io-util", "macros", "time", "rt-multi-thread", "signal"] }
 
 [features]
 # use this feature to turn on println

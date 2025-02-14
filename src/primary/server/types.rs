@@ -1,4 +1,4 @@
 pub struct Packet {
     pub opcode: u32,
-    pub data: Vec<u8>,
+    pub body: Vec<u8>,
 }

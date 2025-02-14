@@ -33,7 +33,7 @@ impl PacketHandler for Handler {
             }
 
             RealmsSerializer {
-                realms: vec![Self::generate_realm(input.server_info.world_port)],
+                realms: vec![Self::generate_realm(input.world_port)],
             }
             .to_binary()
             .unwrap()
