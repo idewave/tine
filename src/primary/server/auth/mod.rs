@@ -5,7 +5,7 @@ pub use login_challenge::LoginChallengeIncoming;
 pub use login_proof::LoginProofIncoming;
 pub use realmlist::RealmlistIncoming;
 
-use crate::primary::traits::processor::Processor;
+use crate::primary::traits::Processor;
 use crate::primary::types::{HandlerInput, ProcessorResult};
 
 mod auth_challenge;

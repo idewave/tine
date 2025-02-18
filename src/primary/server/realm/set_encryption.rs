@@ -1,7 +1,7 @@
 use async_trait::async_trait;
 
 use crate::primary::crypto::header_crypt::{HeaderDecryptor, HeaderEncryptor};
-use crate::primary::traits::packet_handler::PacketHandler;
+use crate::primary::traits::PacketHandler;
 use crate::primary::types::{HandlerInput, HandlerOutput, HandlerResult};
 
 pub struct Handler;

@@ -5,7 +5,7 @@ use tokio::sync::Mutex;
 
 use crate::primary::crypto::header_crypt::{HeaderDecryptor, HeaderEncryptor};
 use crate::primary::crypto::srp::Srp;
-use crate::primary::traits::packet_handler::PacketHandler;
+use crate::primary::traits::PacketHandler;
 
 #[derive(Debug)]
 pub struct HandlerInput {

@@ -1,6 +1,6 @@
 use tentacli_traits::types::opcodes::Opcode;
 
-use crate::primary::traits::processor::Processor;
+use crate::primary::traits::Processor;
 use crate::primary::types::{HandlerInput, ProcessorResult};
 
 mod account_data_times;

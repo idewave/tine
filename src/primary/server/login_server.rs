@@ -13,17 +13,17 @@ use crate::primary::server::auth::{
     AuthProcessor, LoginChallengeIncoming, LoginProofIncoming, RealmlistIncoming,
 };
 use crate::primary::server::types::Packet;
-use crate::primary::traits::processor::Processor;
+use crate::primary::traits::Processor;
 use crate::primary::traits::server::BaseServer;
 use crate::primary::types::ProcessorFunction;
 
-#[derive(Default)]
 pub struct LoginServer;
 
 #[async_trait]
 impl BaseServer for LoginServer {
     fn handle_read(
         input_sender: Sender<Packet>,
+        _: Sender<(u32, Vec<u8>)>,
         mut reader: BufReader<OwnedReadHalf>,
         _: Arc<Mutex<Option<HeaderDecryptor>>>,
     ) -> JoinHandle<anyhow::Result<()>> {
@@ -41,7 +41,12 @@ impl BaseServer for LoginServer {
                 };
 
                 if !body.is_empty() {
-                    input_sender.send(Packet { opcode: opcode as u32, body }).await?;
+                    input_sender
+                        .send(Packet {
+                            opcode: opcode as u32,
+                            body,
+                        })
+                        .await?;
                 }
             }
         })

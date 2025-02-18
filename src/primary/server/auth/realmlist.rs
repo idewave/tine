@@ -5,7 +5,7 @@ use tentacli_packet::{LoginPacket, Segment};
 use tentacli_traits::types::opcodes::Opcode;
 use tentacli_traits::types::realm::Realm;
 
-use crate::primary::traits::packet_handler::PacketHandler;
+use crate::primary::traits::PacketHandler;
 use crate::primary::types::{HandlerInput, HandlerOutput, HandlerResult};
 
 #[derive(LoginPacket, Serialize, Deserialize, Debug)]

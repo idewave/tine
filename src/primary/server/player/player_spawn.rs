@@ -18,7 +18,7 @@ use crate::primary::traits::PacketHandler;
 use crate::primary::types::{HandlerInput, HandlerOutput, HandlerResult};
 
 #[derive(WorldPacket, Serialize, Debug)]
-pub struct UpdateDataOutgoing {
+pub struct UpdatePacket {
     pub blocks_amount: u32,
     #[depends_on(blocks_amount)]
     pub blocks: Vec<Block>,
@@ -404,7 +404,7 @@ impl PacketHandler for Handler {
 
         let blocks = vec![block];
 
-        let packet = UpdateDataOutgoing {
+        let packet = UpdatePacket {
             blocks_amount: blocks.len() as u32,
             blocks,
         }

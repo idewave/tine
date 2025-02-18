@@ -1,9 +1,9 @@
-mod handle_motion;
-
 use tentacli_traits::types::opcodes::Opcode;
 
-use crate::primary::traits::processor::Processor;
+use crate::primary::traits::Processor;
 use crate::primary::types::{HandlerInput, ProcessorResult};
+
+mod handle_motion;
 
 const MOVE_OPCODES: &[u32] = &[
     Opcode::MSG_MOVE_START_FORWARD as u32,

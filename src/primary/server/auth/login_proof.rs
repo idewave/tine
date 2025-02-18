@@ -5,7 +5,7 @@ use tentacli_packet::LoginPacket;
 use tentacli_traits::types::opcodes::Opcode;
 
 use crate::primary::server::auth::types::AccountFlags;
-use crate::primary::traits::packet_handler::PacketHandler;
+use crate::primary::traits::PacketHandler;
 use crate::primary::types::{HandlerInput, HandlerOutput, HandlerResult};
 
 #[derive(LoginPacket, Serialize, Deserialize, Debug)]

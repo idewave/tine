@@ -4,7 +4,7 @@ use sha1::Sha1;
 use tentacli_packet::LoginPacket;
 use tentacli_traits::types::opcodes::Opcode;
 
-use crate::primary::traits::packet_handler::PacketHandler;
+use crate::primary::traits::PacketHandler;
 use crate::primary::types::{HandlerInput, HandlerOutput, HandlerResult};
 
 const VERSION_CHALLENGE: [u8; 16] = [

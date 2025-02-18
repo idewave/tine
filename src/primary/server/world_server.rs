@@ -14,20 +14,20 @@ use crate::primary::server::auth::auth_challenge;
 use crate::primary::server::player::PlayerProcessor;
 use crate::primary::server::realm::RealmProcessor;
 use crate::primary::server::types::Packet;
-use crate::primary::traits::processor::Processor;
+use crate::primary::traits::Processor;
 use crate::primary::traits::server::BaseServer;
 use crate::primary::types::ProcessorFunction;
 
-const HEADER_SIZE: usize = 6;
-const OPCODE_SIZE: usize = 4;
+pub const HEADER_SIZE: usize = 6;
+pub const OPCODE_SIZE: usize = 4;
 
-#[derive(Default)]
 pub struct WorldServer;
 
 #[async_trait]
 impl BaseServer for WorldServer {
     fn handle_read(
         input_sender: Sender<Packet>,
+        _: Sender<(u32, Vec<u8>)>,
         mut reader: BufReader<OwnedReadHalf>,
         decryptor: Arc<Mutex<Option<HeaderDecryptor>>>,
     ) -> JoinHandle<anyhow::Result<()>> {

@@ -7,8 +7,10 @@ mod primary;
 #[tokio::main]
 async fn main() -> AnyResult<()> {
     Server::run(Options {
-        login_port: 3724,
+        proxy_port: 3788,
+        login_port: 3725,
         world_port: 19999,
+        with_proxy: true,
     })
     .await?;
 

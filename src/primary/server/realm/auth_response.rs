@@ -3,7 +3,7 @@ use serde::{Deserialize, Serialize};
 use tentacli_packet::WorldPacket;
 use tentacli_traits::types::opcodes::Opcode;
 
-use crate::primary::traits::packet_handler::PacketHandler;
+use crate::primary::traits::PacketHandler;
 use crate::primary::types::{HandlerInput, HandlerOutput, HandlerResult};
 
 // Opcode::CMSG_AUTH_SESSION
