@@ -55,10 +55,10 @@ const WHITELISTED_OPCODES: &[u16] = &[
     Opcode::SMSG_ITEM_TEXT_QUERY_RESPONSE,
 ];
 
-pub struct ProxyServer;
+pub struct RelayServer;
 
 #[async_trait]
-impl BaseServer for ProxyServer {
+impl BaseServer for RelayServer {
     fn handle_read(
         _: Sender<Packet>,
         output_sender: Sender<(u32, Vec<u8>)>,
@@ -102,6 +102,6 @@ impl BaseServer for ProxyServer {
     }
 
     fn server_name<'a>() -> &'a str {
-        "Proxy Server"
+        "Relay Server"
     }
 }
