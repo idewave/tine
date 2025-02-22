@@ -36,13 +36,11 @@ impl BaseServer for WorldServer {
                 let mut buffer = vec![0u8; HEADER_SIZE];
                 reader.read_exact(&mut buffer).await?;
 
-                let mut header_reader = {
-                    if let Some(header_crypt) = decryptor.lock().await.as_mut() {
-                        Cursor::new(header_crypt.decrypt(&buffer))
-                    } else {
-                        Cursor::new(buffer)
-                    }
-                };
+                if let Some(decryptor) = decryptor.lock().await.as_mut() {
+                    decryptor.decrypt(&mut buffer);
+                }
+
+                let mut header_reader = Cursor::new(buffer);
 
                 let size = ReadBytesExt::read_u16::<BigEndian>(&mut header_reader)? as usize;
                 let opcode = ReadBytesExt::read_u32::<LittleEndian>(&mut header_reader)?;

@@ -6,6 +6,7 @@ use crate::primary::types::{HandlerInput, ProcessorResult};
 mod addon_info;
 mod auth_response;
 mod client_cache_version;
+mod motd;
 mod notification;
 mod set_encryption;
 mod set_time;
@@ -35,8 +36,9 @@ impl Processor for RealmProcessor {
             }
             Opcode::CMSG_PLAYER_LOGIN => {
                 vec![
-                    Box::new(notification::Handler),
-                    Box::new(set_weather::Handler),
+                    // Box::new(notification::Handler),
+                    // Box::new(motd::Handler),
+                    // Box::new(set_weather::Handler),
                 ]
             }
             _ => vec![],

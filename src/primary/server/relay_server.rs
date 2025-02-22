@@ -3,6 +3,7 @@ use std::sync::Arc;
 
 use async_trait::async_trait;
 use byteorder::{BigEndian, LittleEndian, ReadBytesExt};
+use tentacli_traits::types::movement::ObjectUpdateFlags;
 use tentacli_traits::types::opcodes::Opcode;
 use tokio::io::{AsyncReadExt, BufReader};
 use tokio::net::tcp::OwnedReadHalf;
@@ -11,6 +12,7 @@ use tokio::sync::Mutex;
 use tokio::task::JoinHandle;
 
 use crate::primary::crypto::header_crypt::HeaderDecryptor;
+use crate::primary::server::player::UpdatePacket;
 use crate::primary::server::types::Packet;
 use crate::primary::traits::server::BaseServer;
 use crate::primary::types::ProcessorFunction;
@@ -28,6 +30,11 @@ const WHITELISTED_OPCODES: &[u16] = &[
     Opcode::MSG_MOVE_HEARTBEAT,
     Opcode::MSG_MOVE_START_TURN_LEFT,
     Opcode::MSG_MOVE_START_TURN_RIGHT,
+    Opcode::MSG_MOVE_START_STRAFE_RIGHT,
+    Opcode::MSG_MOVE_START_STRAFE_LEFT,
+    Opcode::MSG_MOVE_START_ASCEND,
+    Opcode::MSG_MOVE_STOP_ASCEND,
+    Opcode::MSG_MOVE_HOVER,
     Opcode::MSG_MOVE_STOP,
     Opcode::MSG_MOVE_STOP_STRAFE,
     Opcode::MSG_MOVE_STOP_TURN,
@@ -45,17 +52,70 @@ const WHITELISTED_OPCODES: &[u16] = &[
     Opcode::SMSG_SPELL_GO,
     Opcode::SMSG_SPELL_START,
     Opcode::SMSG_WEATHER,
-    Opcode::SMSG_SERVERTIME,
+    Opcode::SMSG_TIME_SYNC_REQ,
     Opcode::SMSG_NAME_QUERY_RESPONSE,
     Opcode::SMSG_PET_NAME_QUERY_RESPONSE,
     Opcode::SMSG_ITEM_NAME_QUERY_RESPONSE,
     Opcode::MSG_RANDOM_ROLL,
     Opcode::SMSG_AURA_UPDATE_ALL,
+    Opcode::SMSG_AURA_UPDATE,
     Opcode::SMSG_DESTROY_OBJECT,
     Opcode::SMSG_ITEM_TEXT_QUERY_RESPONSE,
+    // FOR TESTING
+    Opcode::SMSG_POWER_UPDATE,
+    Opcode::SMSG_SPELLLOGEXECUTE,
+    Opcode::SMSG_INITIAL_SPELLS,
+    Opcode::SMSG_INITIALIZE_FACTIONS,
+    Opcode::SMSG_ACTION_BUTTONS,
+    Opcode::SMSG_INIT_WORLD_STATES,
+    Opcode::SMSG_LOAD_EQUIPMENT_SET,
+    Opcode::SMSG_LEARNED_DANCE_MOVES,
+    Opcode::SMSG_CHANNEL_NOTIFY,
+    Opcode::SMSG_ATTACKSTART,
+    Opcode::SMSG_ATTACKSTOP,
+    Opcode::SMSG_FORCE_MOVE_ROOT,
+    Opcode::SMSG_FORCE_MOVE_UNROOT,
+    Opcode::SMSG_MOVE_LAND_WALK,
 ];
 
 pub struct RelayServer;
+
+impl RelayServer {
+    fn transform(opcode: u16, packet: &mut [u8]) -> anyhow::Result<Vec<u8>> {
+        // TODO: later adapt this as a pattern
+        match opcode {
+            Opcode::SMSG_UPDATE_OBJECT | Opcode::SMSG_COMPRESSED_UPDATE_OBJECT => {
+                let (
+                    UpdatePacket {
+                        mut blocks,
+                        blocks_amount,
+                    },
+                    _,
+                ) = {
+                    if opcode == Opcode::SMSG_UPDATE_OBJECT {
+                        UpdatePacket::from_binary(&packet[4..])?
+                    } else {
+                        UpdatePacket::from_compressed_binary(&packet[4..])?
+                    }
+                };
+
+                for block in blocks.iter_mut() {
+                    block
+                        .movement
+                        .object_update_flags
+                        .set(ObjectUpdateFlags::SELF, false);
+                }
+
+                Ok(UpdatePacket {
+                    blocks,
+                    blocks_amount,
+                }
+                .to_binary_with_server_opcode(Opcode::SMSG_UPDATE_OBJECT)?)
+            }
+            _ => Ok(packet.to_vec()),
+        }
+    }
+}
 
 #[async_trait]
 impl BaseServer for RelayServer {
@@ -90,8 +150,9 @@ impl BaseServer for RelayServer {
                 packet.extend_from_slice(&body);
 
                 if WHITELISTED_OPCODES.contains(&opcode) {
+                    let packet = Self::transform(opcode, &mut packet)?;
                     // we send the data directly to handle_write
-                    output_sender.send((opcode as u32, packet.clone())).await?;
+                    output_sender.send((opcode as u32, packet)).await?;
                 }
             }
         })

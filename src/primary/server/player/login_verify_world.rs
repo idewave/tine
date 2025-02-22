@@ -3,7 +3,7 @@ use serde::{Deserialize, Serialize};
 use tentacli_packet::WorldPacket;
 use tentacli_traits::types::opcodes::Opcode;
 
-use crate::primary::server::mock_data::CurrentPlayer;
+use crate::primary::server::player::CurrentPlayer;
 use crate::primary::traits::PacketHandler;
 use crate::primary::types::{HandlerInput, HandlerOutput, HandlerResult};
 

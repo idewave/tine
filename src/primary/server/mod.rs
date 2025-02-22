@@ -4,7 +4,6 @@ pub use world_server::WorldServer;
 
 mod auth;
 mod login_server;
-mod mock_data;
 mod movement;
 mod player;
 mod realm;

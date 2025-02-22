@@ -210,9 +210,7 @@ pub trait BaseServer: Send {
                     if let Some(header_crypt) = encryptor.lock().await.as_mut() {
                         let is_large_packet = packet[0] >= 0x80;
                         let header_size: usize = if is_large_packet { 5 } else { 4 };
-
-                        let encrypted_header = header_crypt.encrypt(&packet[..header_size]);
-                        packet[..header_size].copy_from_slice(&encrypted_header);
+                        header_crypt.encrypt(&mut packet[..header_size])
                     }
 
                     writer.lock().await.write_all(&packet).await?;

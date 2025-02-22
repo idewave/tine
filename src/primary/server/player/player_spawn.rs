@@ -13,7 +13,7 @@ use tentacli_traits::types::update_data::{BlockType, ObjectTypeID, UpdateData};
 use tentacli_traits::types::update_fields::{FieldValue, ObjectField, PlayerField, UnitField};
 use tentacli_traits::types::update_fields::FieldValue::TwoShortsArray;
 
-use crate::primary::server::mock_data::CurrentPlayer;
+use crate::primary::server::player::CurrentPlayer;
 use crate::primary::traits::PacketHandler;
 use crate::primary::types::{HandlerInput, HandlerOutput, HandlerResult};
 
