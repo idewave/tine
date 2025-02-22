@@ -3,6 +3,9 @@ use std::sync::Arc;
 
 use async_trait::async_trait;
 use byteorder::{BigEndian, LittleEndian, ReadBytesExt};
+use serde::Serialize;
+use tentacli_packet::WorldPacket;
+use tentacli_traits::types::chat::{Language, MessageType};
 use tentacli_traits::types::movement::ObjectUpdateFlags;
 use tentacli_traits::types::opcodes::Opcode;
 use tokio::io::{AsyncReadExt, BufReader};
@@ -64,11 +67,7 @@ const WHITELISTED_OPCODES: &[u16] = &[
     // FOR TESTING
     Opcode::SMSG_POWER_UPDATE,
     Opcode::SMSG_SPELLLOGEXECUTE,
-    Opcode::SMSG_INITIAL_SPELLS,
-    Opcode::SMSG_INITIALIZE_FACTIONS,
-    Opcode::SMSG_ACTION_BUTTONS,
     Opcode::SMSG_INIT_WORLD_STATES,
-    Opcode::SMSG_LOAD_EQUIPMENT_SET,
     Opcode::SMSG_LEARNED_DANCE_MOVES,
     Opcode::SMSG_CHANNEL_NOTIFY,
     Opcode::SMSG_ATTACKSTART,
@@ -111,6 +110,37 @@ impl RelayServer {
                     blocks_amount,
                 }
                 .to_binary_with_server_opcode(Opcode::SMSG_UPDATE_OBJECT)?)
+            }
+            Opcode::SMSG_MESSAGECHAT => {
+                // overriding chat messages to understand each language
+                #[derive(WorldPacket, Serialize, Debug)]
+                struct Incoming {
+                    message_type: u8,
+                    language: u32,
+                    sender_guid: u64,
+                    skip: u32,
+                    #[conditional]
+                    channel_name: String,
+                    target_guid: u64,
+                    message_length: u32,
+                    #[depends_on(message_length)]
+                    message: String,
+                    unknown: u16,
+                }
+
+                impl Incoming {
+                    fn channel_name(instance: &mut Self) -> bool {
+                        instance.message_type == MessageType::CHANNEL
+                    }
+                }
+
+                let (fields, _) = Incoming::from_binary(&packet[4..])?;
+
+                Ok(Incoming {
+                    language: Language::UNIVERSAL,
+                    ..fields
+                }
+                .to_binary_with_server_opcode(Opcode::SMSG_MESSAGECHAT)?)
             }
             _ => Ok(packet.to_vec()),
         }

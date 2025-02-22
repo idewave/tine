@@ -175,7 +175,10 @@ impl PacketHandler for Handler {
                     map.insert(UnitField::Flags2, FieldValue::Integer(2048));
                     map.insert(UnitField::Health, FieldValue::Integer(82));
                     map.insert(UnitField::HoverHeight, FieldValue::Float(1.0));
-                    map.insert(UnitField::Level, FieldValue::Integer(3));
+                    map.insert(
+                        UnitField::Level,
+                        FieldValue::Integer(CurrentPlayer::LEVEL as i32),
+                    );
                     map.insert(UnitField::MaxDamage, FieldValue::Float(4.971429));
                     map.insert(UnitField::MaxHealth, FieldValue::Integer(82));
                     map.insert(UnitField::MaxOffhandDamage, FieldValue::Float(2.4857144));
@@ -234,7 +237,7 @@ impl PacketHandler for Handler {
                     map.insert(
                         PlayerField::SkillInfo,
                         TwoShortsArray(vec![
-                            (1400, 0),
+                            (1400, 300),
                             (6, 0),
                             (0, 0),
                             (15, 15),
@@ -242,9 +245,9 @@ impl PacketHandler for Handler {
                             (0, 0),
                             (15, 15),
                             (95, 0),
-                            (0, 0),
+                            (109, 300),
                             (15, 15),
-                            (98, 0),
+                            (98, 300),
                             (0, 0),
                             (300, 300),
                             (136, 0),
